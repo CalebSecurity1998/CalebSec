@@ -57,6 +57,16 @@ def init_db():
     )
     """)
 
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS audit_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT,
+        actor TEXT,
+        action TEXT,
+        details TEXT
+    )
+    """)
+
     ensure_column(cur, "alerts", "occurrence_count", "INTEGER DEFAULT 1")
     ensure_column(cur, "alerts", "first_seen", "TEXT DEFAULT ''")
     ensure_column(cur, "alerts", "last_seen", "TEXT DEFAULT ''")
@@ -334,6 +344,54 @@ def delete_case(case_id):
 
     con.commit()
     con.close()
+
+
+def log_audit_event(actor, action, details):
+    con = connect()
+    cur = con.cursor()
+
+    cur.execute("""
+    INSERT INTO audit_events (
+        timestamp,
+        actor,
+        action,
+        details
+    )
+    VALUES (?, ?, ?, ?)
+    """, (
+        datetime.now().isoformat(timespec="seconds"),
+        actor,
+        action,
+        details
+    ))
+
+    con.commit()
+    con.close()
+
+
+def get_audit_events(limit=100):
+    con = connect()
+    cur = con.cursor()
+
+    cur.execute("""
+    SELECT timestamp, actor, action, details
+    FROM audit_events
+    ORDER BY id DESC
+    LIMIT ?
+    """, (limit,))
+
+    rows = cur.fetchall()
+    con.close()
+
+    return [
+        {
+            "timestamp": row[0],
+            "actor": row[1],
+            "action": row[2],
+            "details": row[3]
+        }
+        for row in rows
+    ]
 
 
 def clear_db():
