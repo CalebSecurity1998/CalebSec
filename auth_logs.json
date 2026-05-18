@@ -1,0 +1,10 @@
+[
+  {"timestamp":"2026-05-18T12:00:00","event_type":"login_failed","username":"admin","src_ip":"192.168.1.100","message":"Failed login attempt"},
+  {"timestamp":"2026-05-18T12:01:00","event_type":"login_failed","username":"admin","src_ip":"192.168.1.100","message":"Failed login attempt"},
+  {"timestamp":"2026-05-18T12:02:00","event_type":"login_failed","username":"admin","src_ip":"192.168.1.100","message":"Failed login attempt"},
+  {"timestamp":"2026-05-18T12:03:00","event_type":"login_failed","username":"admin","src_ip":"192.168.1.100","message":"Failed login attempt"},
+  {"timestamp":"2026-05-18T12:04:00","event_type":"login_failed","username":"admin","src_ip":"192.168.1.100","message":"Failed login attempt"},
+  {"timestamp":"2026-05-18T12:05:00","event_type":"login_success","username":"admin","src_ip":"192.168.1.100","message":"Successful login"},
+  {"timestamp":"2026-05-18T23:30:00","event_type":"login_success","username":"caleb","src_ip":"10.0.0.25","message":"Successful login outside normal hours"},
+  {"timestamp":"2026-05-18T13:15:00","event_type":"command_executed","username":"unknown","src_ip":"10.0.0.50","message":"User executed nmap scan against local subnet"}
+]
