@@ -1,7 +1,3 @@
-cd ~/mini-siem
-source venv/bin/activate
-
-cat > main.py << 'EOF'
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
@@ -263,4 +259,3 @@ async def export_alerts(admin: str = Depends(require_admin)):
             "Content-Disposition": "attachment; filename=calebsec_alerts.csv"
         }
     )
-EOF
