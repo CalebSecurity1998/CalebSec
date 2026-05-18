@@ -183,6 +183,7 @@
         .hero {
             padding: 30px;
             border-radius: 30px;
+            animation: rise 0.45s ease both;
         }
 
         .hero-top {
@@ -249,6 +250,7 @@
         .summary-card {
             padding: 18px;
             border-radius: 22px;
+            animation: rise 0.45s ease both;
         }
 
         .summary-top {
@@ -296,7 +298,7 @@
             border-radius: 16px;
             font-weight: 900;
             font-size: 14px;
-            transition: transform 0.16s ease, opacity 0.16s ease;
+            transition: transform 0.16s ease, opacity 0.16s ease, box-shadow 0.16s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -312,11 +314,13 @@
         .primary {
             background: linear-gradient(135deg, #34d399, #10b981);
             color: #04130e;
+            box-shadow: 0 18px 34px rgba(16, 185, 129, 0.18);
         }
 
         .secondary {
             background: linear-gradient(135deg, #60a5fa, #2563eb);
             color: white;
+            box-shadow: 0 18px 34px rgba(37, 99, 235, 0.18);
         }
 
         .muted-btn {
@@ -328,6 +332,7 @@
         .danger {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
+            box-shadow: 0 18px 34px rgba(220, 38, 38, 0.16);
         }
 
         .demo-note {
@@ -350,6 +355,7 @@
             padding: 24px;
             border-radius: 28px;
             margin-bottom: 24px;
+            animation: rise 0.45s ease both;
         }
 
         .panel-heading {
@@ -383,6 +389,13 @@
             font-size: 20px;
         }
 
+        .upload-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+
         .analytics-grid {
             display: grid;
             grid-template-columns: 380px 1fr;
@@ -414,6 +427,7 @@
             position: relative;
             display: grid;
             place-items: center;
+            box-shadow: inset 0 0 0 1px var(--line);
         }
 
         .donut::after {
@@ -435,6 +449,7 @@
             display: block;
             font-size: 34px;
             color: var(--white);
+            line-height: 1;
         }
 
         .donut-center span {
@@ -443,15 +458,13 @@
             font-weight: 800;
         }
 
-        .legend,
-        .trend-list,
-        .section-stack {
+        .legend {
             display: grid;
-            gap: 16px;
+            gap: 10px;
+            margin-top: 16px;
         }
 
-        .legend-item,
-        .trend-label {
+        .legend-item {
             display: flex;
             justify-content: space-between;
             gap: 12px;
@@ -483,6 +496,24 @@
             background: #eab308;
         }
 
+        .trend-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .trend-row {
+            display: grid;
+            gap: 8px;
+        }
+
+        .trend-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            color: var(--text);
+            font-weight: 800;
+        }
+
         .track {
             width: 100%;
             height: 14px;
@@ -496,16 +527,13 @@
             min-width: 10px;
             border-radius: 999px;
             background: linear-gradient(90deg, #60a5fa, #2563eb);
-        }
-
-        .filter-row,
-        .upload-row {
-            display: grid;
-            gap: 12px;
+            animation: fillGrow 0.7s ease both;
         }
 
         .filter-row {
+            display: grid;
             grid-template-columns: 2fr 1fr 1fr 1fr auto auto;
+            gap: 12px;
         }
 
         .quick-filters {
@@ -526,6 +554,7 @@
             border-radius: 16px;
             font-size: 14px;
             outline: none;
+            transition: box-shadow 0.16s ease, border-color 0.16s ease;
         }
 
         textarea {
@@ -534,10 +563,23 @@
             margin-top: 10px;
         }
 
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: rgba(96, 165, 250, 0.8);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.16);
+        }
+
+        .section-stack {
+            display: grid;
+            gap: 18px;
+        }
+
         .alert-card,
         .case-card {
             padding: 20px;
             border-radius: 24px;
+            animation: rise 0.45s ease both;
         }
 
         .alert-card {
@@ -546,14 +588,20 @@
 
         .alert-card.Critical {
             border-left-color: #ef4444;
+            background:
+                linear-gradient(135deg, rgba(127, 29, 29, 0.28), var(--panel));
         }
 
         .alert-card.High {
             border-left-color: #f97316;
+            background:
+                linear-gradient(135deg, rgba(124, 45, 18, 0.24), var(--panel));
         }
 
         .alert-card.Medium {
             border-left-color: #eab308;
+            background:
+                linear-gradient(135deg, rgba(113, 63, 18, 0.22), var(--panel));
         }
 
         .card-header {
@@ -571,25 +619,19 @@
             margin-bottom: 8px;
         }
 
-        .meta,
-        .description small {
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
             color: var(--muted);
             font-size: 13px;
             font-weight: 800;
         }
 
-        .meta {
+        .badge-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .badge-row,
-        .inline-actions,
-        .pagination {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 9px;
         }
 
         .badge {
@@ -599,6 +641,7 @@
             border-radius: 999px;
             font-size: 12px;
             font-weight: 950;
+            letter-spacing: 0.02em;
         }
 
         .badge-critical {
@@ -606,9 +649,17 @@
             color: #fca5a5;
         }
 
+        body.light .badge-critical {
+            color: #b91c1c;
+        }
+
         .badge-high {
             background: rgba(249, 115, 22, 0.18);
             color: #fdba74;
+        }
+
+        body.light .badge-high {
+            color: #c2410c;
         }
 
         .badge-medium {
@@ -616,9 +667,17 @@
             color: #fde68a;
         }
 
+        body.light .badge-medium {
+            color: #a16207;
+        }
+
         .badge-status {
             background: rgba(59, 130, 246, 0.16);
             color: #93c5fd;
+        }
+
+        body.light .badge-status {
+            color: #1d4ed8;
         }
 
         .description {
@@ -627,12 +686,24 @@
             margin: 16px 0;
         }
 
+        .description small {
+            color: var(--muted);
+            font-weight: 800;
+        }
+
         .form-grid {
             display: grid;
             grid-template-columns: 220px 1fr;
             gap: 12px;
             align-items: start;
             margin-top: 14px;
+        }
+
+        .inline-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
         }
 
         .case-form {
@@ -670,6 +741,15 @@
             font-weight: 950;
         }
 
+        td {
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        tr:hover td {
+            background: rgba(148, 163, 184, 0.08);
+        }
+
         .event-pill,
         .action-pill {
             display: inline-flex;
@@ -684,9 +764,17 @@
             color: #c4b5fd;
         }
 
+        body.light .event-pill {
+            color: #6d28d9;
+        }
+
         .action-pill {
             background: rgba(16, 185, 129, 0.16);
             color: #6ee7b7;
+        }
+
+        body.light .action-pill {
+            color: #047857;
         }
 
         .message-cell {
@@ -711,6 +799,21 @@
             margin-bottom: 10px;
         }
 
+        .empty-state strong {
+            display: block;
+            color: var(--white);
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
         .page-pill {
             padding: 10px 14px;
             border-radius: 999px;
@@ -733,6 +836,40 @@
             box-shadow: var(--shadow);
             color: #d1fae5;
             font-weight: 950;
+            animation: toastIn 0.35s ease both;
+        }
+
+        body.light .toast {
+            background: rgba(255, 255, 255, 0.98);
+            color: #047857;
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fillGrow {
+            from {
+                width: 0;
+            }
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @media (max-width: 1180px) {
@@ -743,6 +880,8 @@
             .sidebar {
                 position: relative;
                 height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--line);
             }
 
             .sidebar-footer {
@@ -771,7 +910,8 @@
             .summary-strip,
             .analytics-grid,
             .filter-row,
-            .form-grid {
+            .form-grid,
+            .upload-row {
                 grid-template-columns: 1fr;
             }
 
@@ -799,6 +939,7 @@
 
         <nav class="nav">
             <a href="#overview"><span class="nav-icon">⌂</span>Overview</a>
+            <a href="#upload"><span class="nav-icon">⇪</span>Upload</a>
             <a href="#analytics"><span class="nav-icon">◔</span>Analytics</a>
             <a href="#alerts"><span class="nav-icon">!</span>Alerts</a>
             <a href="#cases"><span class="nav-icon">▣</span>Cases</a>
@@ -822,7 +963,8 @@
                     <h1>CalebSec</h1>
                     <p>
                         A polished SIEM-style monitoring console for alert triage,
-                        security event review, lightweight case management, and audit visibility.
+                        security event review, lightweight case management, file-based ingestion,
+                        and audit visibility.
                     </p>
                 </div>
 
@@ -831,22 +973,34 @@
 
             <div class="summary-strip">
                 <div class="summary-card">
-                    <div class="summary-top"><span>Open Alerts</span><span class="summary-icon">🚨</span></div>
+                    <div class="summary-top">
+                        <span>Open Alerts</span>
+                        <span class="summary-icon">🚨</span>
+                    </div>
                     <div class="summary-value">{{ open_alert_count }}</div>
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-top"><span>Critical Alerts</span><span class="summary-icon">⚠</span></div>
+                    <div class="summary-top">
+                        <span>Critical Alerts</span>
+                        <span class="summary-icon">⚠</span>
+                    </div>
                     <div class="summary-value">{{ critical_alert_count }}</div>
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-top"><span>High Alerts</span><span class="summary-icon">▲</span></div>
+                    <div class="summary-top">
+                        <span>High Alerts</span>
+                        <span class="summary-icon">▲</span>
+                    </div>
                     <div class="summary-value">{{ high_alert_count }}</div>
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-top"><span>Cases Investigating</span><span class="summary-icon">🔎</span></div>
+                    <div class="summary-top">
+                        <span>Cases Investigating</span>
+                        <span class="summary-icon">🔎</span>
+                    </div>
                     <div class="summary-value">{{ investigating_case_count }}</div>
                 </div>
             </div>
@@ -872,7 +1026,7 @@
             </form>
         </section>
 
-        <section class="panel">
+        <section class="panel" id="upload">
             <div class="panel-heading">
                 <div class="panel-title">
                     <span>⇪</span>
@@ -885,14 +1039,17 @@
                 <button class="secondary" type="submit">Upload and Analyze</button>
             </form>
 
-            <p class="description">
+            <div class="description">
                 Upload a JSON array of log objects. CalebSec accepts up to 1000 records and a maximum file size of 2 MB.
-            </p>
+            </div>
         </section>
 
         <section class="panel" id="analytics">
             <div class="panel-heading">
-                <div class="panel-title"><span>◔</span><h2>Analytics Overview</h2></div>
+                <div class="panel-title">
+                    <span>◔</span>
+                    <h2>Analytics Overview</h2>
+                </div>
             </div>
 
             <div class="analytics-grid">
@@ -907,21 +1064,52 @@
                     </div>
 
                     <div class="legend">
-                        <div class="legend-item"><div class="legend-left"><span class="dot dot-critical"></span><span>Critical</span></div><span>{{ severity_counts.get("Critical", 0) }}</span></div>
-                        <div class="legend-item"><div class="legend-left"><span class="dot dot-high"></span><span>High</span></div><span>{{ severity_counts.get("High", 0) }}</span></div>
-                        <div class="legend-item"><div class="legend-left"><span class="dot dot-medium"></span><span>Medium</span></div><span>{{ severity_counts.get("Medium", 0) }}</span></div>
+                        <div class="legend-item">
+                            <div class="legend-left">
+                                <span class="dot dot-critical"></span>
+                                <span>Critical</span>
+                            </div>
+                            <span>{{ severity_counts.get("Critical", 0) }}</span>
+                        </div>
+
+                        <div class="legend-item">
+                            <div class="legend-left">
+                                <span class="dot dot-high"></span>
+                                <span>High</span>
+                            </div>
+                            <span>{{ severity_counts.get("High", 0) }}</span>
+                        </div>
+
+                        <div class="legend-item">
+                            <div class="legend-left">
+                                <span class="dot dot-medium"></span>
+                                <span>Medium</span>
+                            </div>
+                            <span>{{ severity_counts.get("Medium", 0) }}</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="analytics-card">
                     <div class="trend-list">
                         {% for event, count in event_counts.items() %}
-                        <div>
-                            <div class="trend-label"><span>{{ event }}</span><span>{{ count }}</span></div>
-                            <div class="track"><div class="fill" style="width: {{ count * 10 }}%;"></div></div>
+                        <div class="trend-row">
+                            <div class="trend-label">
+                                <span>{{ event }}</span>
+                                <span>{{ count }}</span>
+                            </div>
+                            <div class="track">
+                                <div class="fill" style="width: {{ count * 10 }}%;"></div>
+                            </div>
                         </div>
                         {% else %}
-                        <div class="empty-state"><div><div class="empty-icon">📊</div><strong>No event data yet</strong><span>Ingest logs to populate trend activity.</span></div></div>
+                        <div class="empty-state">
+                            <div>
+                                <div class="empty-icon">📊</div>
+                                <strong>No event data yet</strong>
+                                <span>Ingest logs to populate trend activity.</span>
+                            </div>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
@@ -930,7 +1118,10 @@
 
         <section class="panel">
             <div class="panel-heading">
-                <div class="panel-title"><span>⌕</span><h2>Search and Saved Filters</h2></div>
+                <div class="panel-title">
+                    <span>⌕</span>
+                    <h2>Search and Saved Filters</h2>
+                </div>
             </div>
 
             <form class="filter-row" method="get" action="/">
@@ -969,13 +1160,245 @@
             </div>
         </section>
 
-        <!-- Existing Alerts, Cases, and Logs sections stay visually similar -->
-        <!-- For brevity, keep your current sections below this point if already present -->
-        <!-- If replacing the whole file, copy your current Alerts/Cases/Logs sections beneath here -->
+        <section class="panel" id="alerts">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    <span>!</span>
+                    <h2>Alerts</h2>
+                </div>
+            </div>
+
+            <div class="section-stack">
+            {% for alert in alerts %}
+                <div class="alert-card {{ alert.severity }}">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">#{{ alert.id }} — {{ alert.rule }}</div>
+
+                            <div class="meta">
+                                <span>Source IP: {{ alert.src_ip }}</span>
+                                <span>MITRE: {{ alert.mitre }}</span>
+                                <span>Occurrences: {{ alert.occurrence_count }}</span>
+                            </div>
+                        </div>
+
+                        <div class="badge-row">
+                            {% if alert.severity == "Critical" %}
+                                <span class="badge badge-critical">Critical</span>
+                            {% elif alert.severity == "High" %}
+                                <span class="badge badge-high">High</span>
+                            {% else %}
+                                <span class="badge badge-medium">Medium</span>
+                            {% endif %}
+
+                            <span class="badge badge-status">{{ alert.status }}</span>
+                        </div>
+                    </div>
+
+                    <div class="description">
+                        {{ alert.description }}
+                        <br><br>
+                        <small>
+                            First seen: {{ alert.first_seen }}
+                            &nbsp; | &nbsp;
+                            Last seen: {{ alert.last_seen }}
+                        </small>
+                    </div>
+
+                    <form method="post" action="/alert/{{ alert.id }}/update">
+                        <div class="form-grid">
+                            <select name="status">
+                                <option value="Open" {% if alert.status == "Open" %}selected{% endif %}>Open</option>
+                                <option value="Investigating" {% if alert.status == "Investigating" %}selected{% endif %}>Investigating</option>
+                                <option value="Closed" {% if alert.status == "Closed" %}selected{% endif %}>Closed</option>
+                            </select>
+
+                            <textarea name="notes" placeholder="Write analyst notes here...">{{ alert.notes }}</textarea>
+                        </div>
+
+                        <div class="inline-actions">
+                            <button class="primary" type="submit">Update Alert</button>
+                        </div>
+                    </form>
+
+                    <form method="post"
+                          action="/alert/{{ alert.id }}/delete"
+                          onsubmit="return confirm('Delete this alert and any linked cases?');">
+                        <div class="inline-actions">
+                            <button class="danger" type="submit">Delete Alert</button>
+                        </div>
+                    </form>
+
+                    <form class="case-form" method="post" action="/alert/{{ alert.id }}/case">
+                        <input type="text" name="title" placeholder="Case title" value="Case for alert #{{ alert.id }}">
+                        <textarea name="notes" placeholder="Case notes...">Created from alert: {{ alert.rule }}</textarea>
+
+                        <div class="inline-actions">
+                            <button class="secondary" type="submit">Create Case</button>
+                        </div>
+                    </form>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div>
+                        <div class="empty-icon">🛡</div>
+                        <strong>No alerts to display</strong>
+                        <span>Ingest logs or review current filters.</span>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+
+            {% if total_alert_pages > 1 %}
+            <div class="pagination">
+                {% if alert_page > 1 %}
+                <a class="btn muted-btn"
+                   href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&case_status={{ case_status }}&alert_page={{ alert_page - 1 }}&log_page={{ log_page }}">
+                    Previous Alerts
+                </a>
+                {% endif %}
+
+                <span class="page-pill">
+                    Alerts Page {{ alert_page }} of {{ total_alert_pages }}
+                </span>
+
+                {% if alert_page < total_alert_pages %}
+                <a class="btn muted-btn"
+                   href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&case_status={{ case_status }}&alert_page={{ alert_page + 1 }}&log_page={{ log_page }}">
+                    Next Alerts
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="panel" id="cases">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    <span>▣</span>
+                    <h2>Cases</h2>
+                </div>
+            </div>
+
+            <div class="section-stack">
+            {% for case in cases %}
+                <div class="case-card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Case #{{ case.id }} — {{ case.title }}</div>
+                            <div class="meta">Linked Alert ID: {{ case.alert_id }}</div>
+                        </div>
+                        <span class="badge badge-status">{{ case.status }}</span>
+                    </div>
+
+                    <form method="post" action="/case/{{ case.id }}/update">
+                        <div class="form-grid">
+                            <select name="status">
+                                <option value="Open" {% if case.status == "Open" %}selected{% endif %}>Open</option>
+                                <option value="Investigating" {% if case.status == "Investigating" %}selected{% endif %}>Investigating</option>
+                                <option value="Closed" {% if case.status == "Closed" %}selected{% endif %}>Closed</option>
+                            </select>
+
+                            <textarea name="notes" placeholder="Case notes...">{{ case.notes }}</textarea>
+                        </div>
+
+                        <div class="inline-actions">
+                            <button class="primary" type="submit">Update Case</button>
+                        </div>
+                    </form>
+
+                    <form method="post"
+                          action="/case/{{ case.id }}/delete"
+                          onsubmit="return confirm('Delete this case?');">
+                        <div class="inline-actions">
+                            <button class="danger" type="submit">Delete Case</button>
+                        </div>
+                    </form>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div>
+                        <div class="empty-icon">📁</div>
+                        <strong>No cases created yet</strong>
+                        <span>Create a case from an alert to begin tracking an investigation.</span>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        </section>
+
+        <section class="panel" id="logs">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    <span>≡</span>
+                    <h2>Logs</h2>
+                </div>
+            </div>
+
+            {% if logs %}
+            <div class="table-shell">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Event Type</th>
+                            <th>User</th>
+                            <th>Source IP</th>
+                            <th>Message</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.timestamp }}</td>
+                            <td><span class="event-pill">{{ log.event_type }}</span></td>
+                            <td>{{ log.username }}</td>
+                            <td>{{ log.src_ip }}</td>
+                            <td class="message-cell">{{ log.message }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div>
+                    <div class="empty-icon">🧾</div>
+                    <strong>No logs to display</strong>
+                    <span>Ingest logs or broaden the current search filters.</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if total_log_pages > 1 %}
+            <div class="pagination">
+                {% if log_page > 1 %}
+                <a class="btn muted-btn"
+                   href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&case_status={{ case_status }}&alert_page={{ alert_page }}&log_page={{ log_page - 1 }}">
+                    Previous Logs
+                </a>
+                {% endif %}
+
+                <span class="page-pill">
+                    Logs Page {{ log_page }} of {{ total_log_pages }}
+                </span>
+
+                {% if log_page < total_log_pages %}
+                <a class="btn muted-btn"
+                   href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&case_status={{ case_status }}&alert_page={{ alert_page }}&log_page={{ log_page + 1 }}">
+                    Next Logs
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </section>
 
         <section class="panel" id="audit">
             <div class="panel-heading">
-                <div class="panel-title"><span>↺</span><h2>Audit Trail</h2></div>
+                <div class="panel-title">
+                    <span>↺</span>
+                    <h2>Audit Trail</h2>
+                </div>
             </div>
 
             {% if audit_events %}
