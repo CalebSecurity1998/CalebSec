@@ -1,4 +1,14 @@
-from fastapi import FastAPI, Request, Form, Depends, HTTPException, status
+from fastapi import (
+    FastAPI,
+    Request,
+    Form,
+    Depends,
+    HTTPException,
+    status,
+    BackgroundTasks,
+    UploadFile,
+    File
+)
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
@@ -9,7 +19,8 @@ import io
 import os
 import secrets
 import math
-from collections import Counter
+import time
+from collections import Counter, defaultdict, deque
 
 from detection import run_all_detections
 from database import (
@@ -24,7 +35,9 @@ from database import (
     create_case,
     get_cases,
     update_case,
-    delete_case
+    delete_case,
+    log_audit_event,
+    get_audit_events
 )
 from macos_ingest import collect_macos_logs
 
@@ -40,8 +53,38 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "change-this-password")
 
 ALERTS_PER_PAGE = 25
 LOGS_PER_PAGE = 25
+MAX_UPLOAD_BYTES = 2 * 1024 * 1024
+MAX_UPLOAD_RECORDS = 1000
+
+RATE_LIMIT_WINDOW_SECONDS = 60
+RATE_LIMIT_MAX_ACTIONS = 20
+rate_limit_buckets = defaultdict(deque)
 
 init_db()
+
+
+def get_client_ip(request: Request):
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def enforce_rate_limit(request: Request):
+    now = time.time()
+    ip = get_client_ip(request)
+    bucket = rate_limit_buckets[ip]
+
+    while bucket and now - bucket[0] > RATE_LIMIT_WINDOW_SECONDS:
+        bucket.popleft()
+
+    if len(bucket) >= RATE_LIMIT_MAX_ACTIONS:
+        raise HTTPException(
+            status_code=429,
+            detail="Rate limit exceeded. Please wait before trying again."
+        )
+
+    bucket.append(now)
 
 
 def require_admin(credentials: HTTPBasicCredentials = Depends(security)):
@@ -65,6 +108,14 @@ def require_admin(credentials: HTTPBasicCredentials = Depends(security)):
     return credentials.username
 
 
+def protected_admin_action(
+    request: Request,
+    admin: str = Depends(require_admin)
+):
+    enforce_rate_limit(request)
+    return admin
+
+
 def seed_demo_data_if_needed():
     if DEMO_MODE and len(get_logs()) == 0:
         with open("sample_logs/auth_logs.json", "r") as f:
@@ -77,6 +128,12 @@ def seed_demo_data_if_needed():
 
         for alert in alerts:
             insert_alert(alert)
+
+        log_audit_event(
+            "system",
+            "demo_seed",
+            f"Seeded {len(logs)} demo logs and {len(alerts)} alerts."
+        )
 
 
 def paginate(items, page, page_size):
@@ -98,6 +155,27 @@ def redirect_with_notice(message: str):
     )
 
 
+def process_log_batch(logs, actor, source_label):
+    alerts = run_all_detections(logs)
+
+    for log in logs:
+        insert_log(log)
+
+    for alert in alerts:
+        insert_alert(alert)
+
+    log_audit_event(
+        actor,
+        "ingest_complete",
+        f"{source_label}: inserted {len(logs)} logs and generated {len(alerts)} alerts."
+    )
+
+
+def process_macos_batch(actor):
+    logs = collect_macos_logs()
+    process_log_batch(logs, actor, "macOS logs")
+
+
 seed_demo_data_if_needed()
 
 
@@ -114,6 +192,9 @@ async def custom_http_exception_handler(
     elif status_code == 401:
         title = "Admin Login Required"
         message = "This action requires valid CalebSec administrator credentials."
+    elif status_code == 429:
+        title = "Rate Limit Reached"
+        message = "Too many protected actions were attempted too quickly. Please wait a moment."
     else:
         title = f"Request Error {status_code}"
         message = str(exc.detail) if exc.detail else "CalebSec could not complete that request."
@@ -158,16 +239,19 @@ async def dashboard(
     q: str = "",
     severity: str = "",
     status: str = "",
+    case_status: str = "",
     alert_page: int = 1,
     log_page: int = 1,
     notice: str = ""
 ):
     all_logs = get_logs()
     all_alerts = get_alerts()
-    cases = get_cases()
+    all_cases = get_cases()
+    audit_events = get_audit_events(100)
 
     logs = all_logs
     alerts = all_alerts
+    cases = all_cases
 
     if q:
         q_lower = q.lower()
@@ -190,6 +274,12 @@ async def dashboard(
         alerts = [
             alert for alert in alerts
             if alert.get("status", "").lower() == status.lower()
+        ]
+
+    if case_status:
+        cases = [
+            case for case in cases
+            if case.get("status", "").lower() == case_status.lower()
         ]
 
     paginated_alerts, alert_page, total_alert_pages = paginate(
@@ -223,7 +313,7 @@ async def dashboard(
     )
 
     investigating_case_count = sum(
-        1 for case in cases
+        1 for case in all_cases
         if case.get("status") == "Investigating"
     )
 
@@ -251,12 +341,14 @@ async def dashboard(
             "alerts": paginated_alerts,
             "logs": paginated_logs,
             "cases": cases,
+            "audit_events": audit_events,
             "alert_count": len(alerts),
             "log_count": len(logs),
             "case_count": len(cases),
             "q": q,
             "severity": severity,
             "status": status,
+            "case_status": case_status,
             "severity_counts": severity_counts,
             "event_counts": event_counts,
             "macos_ingest_enabled": ENABLE_MACOS_INGEST,
@@ -278,36 +370,103 @@ async def dashboard(
 
 
 @app.post("/ingest")
-async def ingest_sample_logs(admin: str = Depends(require_admin)):
+async def ingest_sample_logs(
+    background_tasks: BackgroundTasks,
+    admin: str = Depends(protected_admin_action)
+):
     with open("sample_logs/auth_logs.json", "r") as f:
         logs = json.load(f)
 
-    alerts = run_all_detections(logs)
+    background_tasks.add_task(
+        process_log_batch,
+        logs,
+        admin,
+        "Sample logs"
+    )
 
-    for log in logs:
-        insert_log(log)
+    log_audit_event(
+        admin,
+        "ingest_queued",
+        f"Queued {len(logs)} sample logs for background processing."
+    )
 
-    for alert in alerts:
-        insert_alert(alert)
-
-    return redirect_with_notice("Sample logs ingested")
+    return redirect_with_notice("Sample log ingestion queued")
 
 
 @app.post("/ingest-macos")
-async def ingest_macos_logs(admin: str = Depends(require_admin)):
+async def ingest_macos_logs(
+    background_tasks: BackgroundTasks,
+    admin: str = Depends(protected_admin_action)
+):
     if not ENABLE_MACOS_INGEST:
         return redirect_with_notice("macOS ingestion is disabled in hosted demo mode")
 
-    logs = collect_macos_logs()
-    alerts = run_all_detections(logs)
+    background_tasks.add_task(process_macos_batch, admin)
 
-    for log in logs:
-        insert_log(log)
+    log_audit_event(
+        admin,
+        "macos_ingest_queued",
+        "Queued macOS log collection for background processing."
+    )
 
-    for alert in alerts:
-        insert_alert(alert)
+    return redirect_with_notice("macOS log ingestion queued")
 
-    return redirect_with_notice("macOS logs ingested")
+
+@app.post("/upload-logs")
+async def upload_logs(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    admin: str = Depends(protected_admin_action)
+):
+    raw = await file.read()
+
+    if len(raw) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded file is too large. Maximum size is 2 MB."
+        )
+
+    try:
+        parsed = json.loads(raw.decode("utf-8"))
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded file must be valid JSON."
+        )
+
+    if not isinstance(parsed, list):
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded JSON must be a list of log objects."
+        )
+
+    if len(parsed) > MAX_UPLOAD_RECORDS:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded JSON has too many records. Maximum is 1000."
+        )
+
+    for record in parsed:
+        if not isinstance(record, dict):
+            raise HTTPException(
+                status_code=400,
+                detail="Every uploaded log entry must be a JSON object."
+            )
+
+    background_tasks.add_task(
+        process_log_batch,
+        parsed,
+        admin,
+        f"Uploaded file {file.filename}"
+    )
+
+    log_audit_event(
+        admin,
+        "upload_queued",
+        f"Queued uploaded file {file.filename} with {len(parsed)} records."
+    )
+
+    return redirect_with_notice("Uploaded logs queued for analysis")
 
 
 @app.post("/alert/{alert_id}/update")
@@ -315,18 +474,32 @@ async def alert_update(
     alert_id: int,
     status: str = Form(...),
     notes: str = Form(""),
-    admin: str = Depends(require_admin)
+    admin: str = Depends(protected_admin_action)
 ):
     update_alert(alert_id, status, notes)
+
+    log_audit_event(
+        admin,
+        "alert_updated",
+        f"Alert #{alert_id} updated to status {status}."
+    )
+
     return redirect_with_notice("Alert updated")
 
 
 @app.post("/alert/{alert_id}/delete")
 async def alert_delete(
     alert_id: int,
-    admin: str = Depends(require_admin)
+    admin: str = Depends(protected_admin_action)
 ):
     delete_alert(alert_id)
+
+    log_audit_event(
+        admin,
+        "alert_deleted",
+        f"Deleted alert #{alert_id} and any linked cases."
+    )
+
     return redirect_with_notice("Alert deleted")
 
 
@@ -335,9 +508,16 @@ async def create_case_route(
     alert_id: int,
     title: str = Form(...),
     notes: str = Form(""),
-    admin: str = Depends(require_admin)
+    admin: str = Depends(protected_admin_action)
 ):
     create_case(alert_id, title, notes)
+
+    log_audit_event(
+        admin,
+        "case_created",
+        f"Created case from alert #{alert_id}: {title}"
+    )
+
     return redirect_with_notice("Case created")
 
 
@@ -346,30 +526,51 @@ async def case_update(
     case_id: int,
     status: str = Form(...),
     notes: str = Form(""),
-    admin: str = Depends(require_admin)
+    admin: str = Depends(protected_admin_action)
 ):
     update_case(case_id, status, notes)
+
+    log_audit_event(
+        admin,
+        "case_updated",
+        f"Case #{case_id} updated to status {status}."
+    )
+
     return redirect_with_notice("Case updated")
 
 
 @app.post("/case/{case_id}/delete")
 async def case_delete(
     case_id: int,
-    admin: str = Depends(require_admin)
+    admin: str = Depends(protected_admin_action)
 ):
     delete_case(case_id)
+
+    log_audit_event(
+        admin,
+        "case_deleted",
+        f"Deleted case #{case_id}."
+    )
+
     return redirect_with_notice("Case deleted")
 
 
 @app.post("/clear")
-async def clear_data(admin: str = Depends(require_admin)):
+async def clear_data(admin: str = Depends(protected_admin_action)):
     clear_db()
     seed_demo_data_if_needed()
+
+    log_audit_event(
+        admin,
+        "database_cleared",
+        "Cleared logs, alerts, and cases."
+    )
+
     return redirect_with_notice("Database cleared")
 
 
 @app.get("/export-alerts")
-async def export_alerts(admin: str = Depends(require_admin)):
+async def export_alerts(admin: str = Depends(protected_admin_action)):
     alerts = get_alerts()
 
     output = io.StringIO()
@@ -405,6 +606,12 @@ async def export_alerts(admin: str = Depends(require_admin)):
         ])
 
     output.seek(0)
+
+    log_audit_event(
+        admin,
+        "alerts_exported",
+        f"Exported {len(alerts)} alerts to CSV."
+    )
 
     return StreamingResponse(
         iter([output.getvalue()]),
