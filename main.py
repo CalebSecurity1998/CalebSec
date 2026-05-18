@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, Form, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 import json
 import csv
 import io
@@ -89,6 +90,52 @@ def paginate(items, page, page_size):
 
 
 seed_demo_data_if_needed()
+
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(
+    request: Request,
+    exc: StarletteHTTPException
+):
+    status_code = exc.status_code
+
+    if status_code == 404:
+        title = "Page Not Found"
+        message = "The CalebSec page you requested does not exist."
+    elif status_code == 401:
+        title = "Admin Login Required"
+        message = "This action requires valid CalebSec administrator credentials."
+    else:
+        title = f"Request Error {status_code}"
+        message = str(exc.detail) if exc.detail else "CalebSec could not complete that request."
+
+    return templates.TemplateResponse(
+        request=request,
+        name="error.html",
+        context={
+            "status_code": status_code,
+            "title": title,
+            "message": message
+        },
+        status_code=status_code
+    )
+
+
+@app.exception_handler(Exception)
+async def custom_server_error_handler(
+    request: Request,
+    exc: Exception
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="error.html",
+        context={
+            "status_code": 500,
+            "title": "Something Went Wrong",
+            "message": "CalebSec ran into an unexpected issue. Please try again shortly."
+        },
+        status_code=500
+    )
 
 
 @app.get("/health")
