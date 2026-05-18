@@ -9,10 +9,10 @@ from fastapi import (
     UploadFile,
     File
 )
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.sessions import SessionMiddleware
 import json
 import csv
 import io
@@ -43,13 +43,22 @@ from macos_ingest import collect_macos_logs
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
-security = HTTPBasic()
 
 DEMO_MODE = os.getenv("DEMO_MODE", "false").lower() == "true"
 ENABLE_MACOS_INGEST = os.getenv("ENABLE_MACOS_INGEST", "true").lower() == "true"
 
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "caleb")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "change-this-password")
+
+SESSION_SECRET = os.getenv("SESSION_SECRET", "change-this-session-secret")
+SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true"
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=SESSION_SECRET,
+    same_site="lax",
+    https_only=SESSION_COOKIE_SECURE
+)
 
 ALERTS_PER_PAGE = 25
 LOGS_PER_PAGE = 25
@@ -67,6 +76,7 @@ def get_client_ip(request: Request):
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
         return forwarded.split(",")[0].strip()
+
     return request.client.host if request.client else "unknown"
 
 
@@ -87,30 +97,21 @@ def enforce_rate_limit(request: Request):
     bucket.append(now)
 
 
-def require_admin(credentials: HTTPBasicCredentials = Depends(security)):
-    username_ok = secrets.compare_digest(
-        credentials.username.encode("utf-8"),
-        ADMIN_USERNAME.encode("utf-8")
-    )
+def require_admin_session(request: Request):
+    is_admin = request.session.get("is_admin", False)
 
-    password_ok = secrets.compare_digest(
-        credentials.password.encode("utf-8"),
-        ADMIN_PASSWORD.encode("utf-8")
-    )
-
-    if not (username_ok and password_ok):
+    if not is_admin:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid admin credentials",
-            headers={"WWW-Authenticate": "Basic"},
+            detail="Admin login required."
         )
 
-    return credentials.username
+    return request.session.get("admin_username", ADMIN_USERNAME)
 
 
 def protected_admin_action(
     request: Request,
-    admin: str = Depends(require_admin)
+    admin: str = Depends(require_admin_session)
 ):
     enforce_rate_limit(request)
     return admin
@@ -186,12 +187,12 @@ async def custom_http_exception_handler(
 ):
     status_code = exc.status_code
 
+    if status_code == 401:
+        return RedirectResponse(url="/login", status_code=303)
+
     if status_code == 404:
         title = "Page Not Found"
         message = "The CalebSec page you requested does not exist."
-    elif status_code == 401:
-        title = "Admin Login Required"
-        message = "This action requires valid CalebSec administrator credentials."
     elif status_code == 429:
         title = "Rate Limit Reached"
         message = "Too many protected actions were attempted too quickly. Please wait a moment."
@@ -231,6 +232,79 @@ async def custom_server_error_handler(
 @app.get("/health")
 async def health():
     return {"status": "ok", "app": "CalebSec"}
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request, error: str = ""):
+    if request.session.get("is_admin", False):
+        return RedirectResponse(url="/", status_code=303)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html",
+        context={
+            "error": error
+        }
+    )
+
+
+@app.post("/login")
+async def login_submit(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...)
+):
+    username_ok = secrets.compare_digest(
+        username.encode("utf-8"),
+        ADMIN_USERNAME.encode("utf-8")
+    )
+
+    password_ok = secrets.compare_digest(
+        password.encode("utf-8"),
+        ADMIN_PASSWORD.encode("utf-8")
+    )
+
+    if not (username_ok and password_ok):
+        log_audit_event(
+            username or "unknown",
+            "login_failed",
+            "Failed CalebSec admin login attempt."
+        )
+
+        return templates.TemplateResponse(
+            request=request,
+            name="login.html",
+            context={
+                "error": "Invalid admin username or password."
+            },
+            status_code=401
+        )
+
+    request.session["is_admin"] = True
+    request.session["admin_username"] = username
+
+    log_audit_event(
+        username,
+        "login_success",
+        "Admin signed into CalebSec."
+    )
+
+    return redirect_with_notice("Admin login successful")
+
+
+@app.post("/logout")
+async def logout(request: Request):
+    admin_username = request.session.get("admin_username", "admin")
+
+    request.session.clear()
+
+    log_audit_event(
+        admin_username,
+        "logout",
+        "Admin signed out of CalebSec."
+    )
+
+    return RedirectResponse(url="/", status_code=303)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -364,7 +438,9 @@ async def dashboard(
             "investigating_case_count": investigating_case_count,
             "critical_percent": critical_percent,
             "high_percent": high_percent,
-            "medium_percent": medium_percent
+            "medium_percent": medium_percent,
+            "is_admin": request.session.get("is_admin", False),
+            "admin_username": request.session.get("admin_username", "")
         }
     )
 
