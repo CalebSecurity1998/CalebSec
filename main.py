@@ -91,6 +91,13 @@ def paginate(items, page, page_size):
     return items[start:end], page, total_pages
 
 
+def redirect_with_notice(message: str):
+    return RedirectResponse(
+        url=f"/?notice={message}",
+        status_code=303
+    )
+
+
 seed_demo_data_if_needed()
 
 
@@ -152,7 +159,8 @@ async def dashboard(
     severity: str = "",
     status: str = "",
     alert_page: int = 1,
-    log_page: int = 1
+    log_page: int = 1,
+    notice: str = ""
 ):
     all_logs = get_logs()
     all_alerts = get_alerts()
@@ -199,6 +207,43 @@ async def dashboard(
     severity_counts = dict(Counter(alert["severity"] for alert in all_alerts))
     event_counts = dict(Counter(log["event_type"] for log in all_logs))
 
+    critical_alert_count = sum(
+        1 for alert in all_alerts
+        if alert.get("severity") == "Critical"
+    )
+
+    high_alert_count = sum(
+        1 for alert in all_alerts
+        if alert.get("severity") == "High"
+    )
+
+    open_alert_count = sum(
+        1 for alert in all_alerts
+        if alert.get("status") == "Open"
+    )
+
+    investigating_case_count = sum(
+        1 for case in cases
+        if case.get("status") == "Investigating"
+    )
+
+    total_alerts_for_chart = max(1, len(all_alerts))
+
+    critical_percent = round(
+        severity_counts.get("Critical", 0) / total_alerts_for_chart * 100,
+        1
+    )
+
+    high_percent = round(
+        severity_counts.get("High", 0) / total_alerts_for_chart * 100,
+        1
+    )
+
+    medium_percent = round(
+        severity_counts.get("Medium", 0) / total_alerts_for_chart * 100,
+        1
+    )
+
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
@@ -219,7 +264,15 @@ async def dashboard(
             "alert_page": alert_page,
             "log_page": log_page,
             "total_alert_pages": total_alert_pages,
-            "total_log_pages": total_log_pages
+            "total_log_pages": total_log_pages,
+            "notice": notice,
+            "critical_alert_count": critical_alert_count,
+            "high_alert_count": high_alert_count,
+            "open_alert_count": open_alert_count,
+            "investigating_case_count": investigating_case_count,
+            "critical_percent": critical_percent,
+            "high_percent": high_percent,
+            "medium_percent": medium_percent
         }
     )
 
@@ -237,13 +290,13 @@ async def ingest_sample_logs(admin: str = Depends(require_admin)):
     for alert in alerts:
         insert_alert(alert)
 
-    return RedirectResponse(url="/", status_code=303)
+    return redirect_with_notice("Sample logs ingested")
 
 
 @app.post("/ingest-macos")
 async def ingest_macos_logs(admin: str = Depends(require_admin)):
     if not ENABLE_MACOS_INGEST:
-        return RedirectResponse(url="/", status_code=303)
+        return redirect_with_notice("macOS ingestion is disabled in hosted demo mode")
 
     logs = collect_macos_logs()
     alerts = run_all_detections(logs)
@@ -254,7 +307,7 @@ async def ingest_macos_logs(admin: str = Depends(require_admin)):
     for alert in alerts:
         insert_alert(alert)
 
-    return RedirectResponse(url="/", status_code=303)
+    return redirect_with_notice("macOS logs ingested")
 
 
 @app.post("/alert/{alert_id}/update")
@@ -265,7 +318,7 @@ async def alert_update(
     admin: str = Depends(require_admin)
 ):
     update_alert(alert_id, status, notes)
-    return RedirectResponse(url="/", status_code=303)
+    return redirect_with_notice("Alert updated")
 
 
 @app.post("/alert/{alert_id}/delete")
@@ -274,7 +327,7 @@ async def alert_delete(
     admin: str = Depends(require_admin)
 ):
     delete_alert(alert_id)
-    return RedirectResponse(url="/", status_code=303)
+    return redirect_with_notice("Alert deleted")
 
 
 @app.post("/alert/{alert_id}/case")
@@ -285,7 +338,7 @@ async def create_case_route(
     admin: str = Depends(require_admin)
 ):
     create_case(alert_id, title, notes)
-    return RedirectResponse(url="/", status_code=303)
+    return redirect_with_notice("Case created")
 
 
 @app.post("/case/{case_id}/update")
@@ -296,7 +349,7 @@ async def case_update(
     admin: str = Depends(require_admin)
 ):
     update_case(case_id, status, notes)
-    return RedirectResponse(url="/", status_code=303)
+    return redirect_with_notice("Case updated")
 
 
 @app.post("/case/{case_id}/delete")
@@ -305,14 +358,14 @@ async def case_delete(
     admin: str = Depends(require_admin)
 ):
     delete_case(case_id)
-    return RedirectResponse(url="/", status_code=303)
+    return redirect_with_notice("Case deleted")
 
 
 @app.post("/clear")
 async def clear_data(admin: str = Depends(require_admin)):
     clear_db()
     seed_demo_data_if_needed()
-    return RedirectResponse(url="/", status_code=303)
+    return redirect_with_notice("Database cleared")
 
 
 @app.get("/export-alerts")
