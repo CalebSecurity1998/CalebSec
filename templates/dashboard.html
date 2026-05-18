@@ -58,6 +58,17 @@
             white-space: nowrap;
         }
 
+        .demo-note {
+            padding: 12px 16px;
+            border-radius: 14px;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            color: #bfdbfe;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+        }
+
         .toolbar {
             display: flex;
             flex-wrap: wrap;
@@ -148,6 +159,64 @@
             margin: 0 0 18px 0;
             font-size: 24px;
             color: #f8fafc;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .analytics-card {
+            padding: 18px;
+            border-radius: 18px;
+            background: rgba(17, 24, 39, 0.92);
+            border: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .analytics-card h3 {
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #f8fafc;
+        }
+
+        .chart-row {
+            margin-bottom: 14px;
+        }
+
+        .chart-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+        }
+
+        .track {
+            width: 100%;
+            height: 12px;
+            background: rgba(148, 163, 184, 0.15);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #10b981, #22c55e);
+            min-width: 8px;
+        }
+
+        .fill-critical {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+        }
+
+        .fill-high {
+            background: linear-gradient(90deg, #ea580c, #f97316);
+        }
+
+        .fill-medium {
+            background: linear-gradient(90deg, #ca8a04, #eab308);
         }
 
         .filter-row {
@@ -274,6 +343,10 @@
             margin: 14px 0;
         }
 
+        .description small {
+            color: #94a3b8;
+        }
+
         .form-grid {
             display: grid;
             grid-template-columns: 220px 1fr;
@@ -320,63 +393,21 @@
             line-height: 1.5;
         }
 
-
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 18px;
-        }
-
-        .analytics-card {
-            padding: 18px;
-            border-radius: 18px;
-            background: rgba(17, 24, 39, 0.92);
-            border: 1px solid rgba(148, 163, 184, 0.12);
-        }
-
-        .analytics-card h3 {
-            margin-top: 0;
-            margin-bottom: 16px;
-            color: #f8fafc;
-        }
-
-        .chart-row {
-            margin-bottom: 14px;
-        }
-
-        .chart-label {
+        .pagination {
             display: flex;
-            justify-content: space-between;
-            font-size: 14px;
+            align-items: center;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .page-pill {
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.12);
             color: #cbd5e1;
-            margin-bottom: 6px;
-        }
-
-        .track {
-            width: 100%;
-            height: 12px;
-            background: rgba(148, 163, 184, 0.15);
-            border-radius: 999px;
-            overflow: hidden;
-        }
-
-        .fill {
-            height: 100%;
-            border-radius: 999px;
-            background: linear-gradient(90deg, #10b981, #22c55e);
-            min-width: 8px;
-        }
-
-        .fill-critical {
-            background: linear-gradient(90deg, #dc2626, #ef4444);
-        }
-
-        .fill-high {
-            background: linear-gradient(90deg, #ea580c, #f97316);
-        }
-
-        .fill-medium {
-            background: linear-gradient(90deg, #ca8a04, #eab308);
+            font-weight: 700;
+            font-size: 14px;
         }
 
         @media (max-width: 1000px) {
@@ -398,19 +429,7 @@
                 grid-template-columns: 1fr;
             }
         }
-    
-        .demo-note {
-            padding: 12px 16px;
-            border-radius: 14px;
-            background: rgba(59, 130, 246, 0.15);
-            border: 1px solid rgba(96, 165, 250, 0.3);
-            color: #bfdbfe;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-        }
-        </style>
-
+    </style>
 </head>
 
 <body>
@@ -419,13 +438,12 @@
     <section class="hero">
         <div>
             <h1>CalebSec</h1>
-            <p>Security monitoring, analyst notes, case tracking, and event review.</p>
+            <p>Lightweight security monitoring, alert triage, and case management.</p>
         </div>
         <div class="status-pill">System Online</div>
     </section>
 
     <section class="toolbar">
-        
         {% if macos_ingest_enabled %}
         <form method="post" action="/ingest-macos">
             <button class="primary" type="submit">Ingest macOS Logs</button>
@@ -433,7 +451,6 @@
         {% else %}
         <div class="demo-note">Hosted demo mode: macOS log ingestion disabled</div>
         {% endif %}
-
 
         <form method="post" action="/ingest">
             <button class="secondary" type="submit">Ingest Sample Logs</button>
@@ -462,7 +479,6 @@
             <div class="metric-value">{{ case_count }}</div>
         </div>
     </section>
-
 
     <section class="panel">
         <h2>Analytics Overview</h2>
@@ -592,6 +608,14 @@
                     </div>
                 </form>
 
+                <form method="post"
+                      action="/alert/{{ alert.id }}/delete"
+                      onsubmit="return confirm('Delete this alert and any linked cases?');">
+                    <div class="inline-actions">
+                        <button class="danger" type="submit">Delete Alert</button>
+                    </div>
+                </form>
+
                 <form class="case-form" method="post" action="/alert/{{ alert.id }}/case">
                     <input type="text" name="title" placeholder="Case title" value="Case for alert #{{ alert.id }}">
                     <textarea name="notes" placeholder="Case notes...">Created from alert: {{ alert.rule }}</textarea>
@@ -605,6 +629,28 @@
             <div class="empty">No alerts to display.</div>
         {% endfor %}
         </div>
+
+        {% if total_alert_pages > 1 %}
+        <div class="pagination">
+            {% if alert_page > 1 %}
+            <a class="btn muted-btn"
+               href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&alert_page={{ alert_page - 1 }}&log_page={{ log_page }}">
+                Previous Alerts
+            </a>
+            {% endif %}
+
+            <span class="page-pill">
+                Alerts Page {{ alert_page }} of {{ total_alert_pages }}
+            </span>
+
+            {% if alert_page < total_alert_pages %}
+            <a class="btn muted-btn"
+               href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&alert_page={{ alert_page + 1 }}&log_page={{ log_page }}">
+                Next Alerts
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
     </section>
 
     <section class="panel">
@@ -636,6 +682,14 @@
                         <button class="primary" type="submit">Update Case</button>
                     </div>
                 </form>
+
+                <form method="post"
+                      action="/case/{{ case.id }}/delete"
+                      onsubmit="return confirm('Delete this case?');">
+                    <div class="inline-actions">
+                        <button class="danger" type="submit">Delete Case</button>
+                    </div>
+                </form>
             </div>
         {% else %}
             <div class="empty">No cases created yet.</div>
@@ -662,6 +716,28 @@
             <div class="empty">No logs to display.</div>
         {% endfor %}
         </div>
+
+        {% if total_log_pages > 1 %}
+        <div class="pagination">
+            {% if log_page > 1 %}
+            <a class="btn muted-btn"
+               href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&alert_page={{ alert_page }}&log_page={{ log_page - 1 }}">
+                Previous Logs
+            </a>
+            {% endif %}
+
+            <span class="page-pill">
+                Logs Page {{ log_page }} of {{ total_log_pages }}
+            </span>
+
+            {% if log_page < total_log_pages %}
+            <a class="btn muted-btn"
+               href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&alert_page={{ alert_page }}&log_page={{ log_page + 1 }}">
+                Next Logs
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
     </section>
 
 </div>
