@@ -1,10 +1,16 @@
-from fastapi import FastAPI, Request, Form
+cd ~/mini-siem
+source venv/bin/activate
+
+cat > main.py << 'EOF'
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 import json
 import csv
 import io
 import os
+import secrets
 from collections import Counter
 
 from detection import run_all_detections
@@ -24,11 +30,36 @@ from macos_ingest import collect_macos_logs
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+security = HTTPBasic()
 
 DEMO_MODE = os.getenv("DEMO_MODE", "false").lower() == "true"
 ENABLE_MACOS_INGEST = os.getenv("ENABLE_MACOS_INGEST", "true").lower() == "true"
 
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "caleb")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "change-this-password")
+
 init_db()
+
+
+def require_admin(credentials: HTTPBasicCredentials = Depends(security)):
+    username_ok = secrets.compare_digest(
+        credentials.username.encode("utf-8"),
+        ADMIN_USERNAME.encode("utf-8")
+    )
+
+    password_ok = secrets.compare_digest(
+        credentials.password.encode("utf-8"),
+        ADMIN_PASSWORD.encode("utf-8")
+    )
+
+    if not (username_ok and password_ok):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid admin credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    return credentials.username
 
 
 def seed_demo_data_if_needed():
@@ -58,7 +89,7 @@ async def dashboard(
     request: Request,
     q: str = "",
     severity: str = "",
-    status: str = ""
+    status_filter: str = ""
 ):
     all_logs = get_logs()
     all_alerts = get_alerts()
@@ -84,10 +115,10 @@ async def dashboard(
             if alert.get("severity", "").lower() == severity.lower()
         ]
 
-    if status:
+    if status_filter:
         alerts = [
             alert for alert in alerts
-            if alert.get("status", "").lower() == status.lower()
+            if alert.get("status", "").lower() == status_filter.lower()
         ]
 
     severity_counts = dict(Counter(alert["severity"] for alert in all_alerts))
@@ -105,7 +136,7 @@ async def dashboard(
             "case_count": len(cases),
             "q": q,
             "severity": severity,
-            "status": status,
+            "status": status_filter,
             "severity_counts": severity_counts,
             "event_counts": event_counts,
             "macos_ingest_enabled": ENABLE_MACOS_INGEST,
@@ -115,7 +146,7 @@ async def dashboard(
 
 
 @app.post("/ingest")
-async def ingest_sample_logs():
+async def ingest_sample_logs(admin: str = Depends(require_admin)):
     with open("sample_logs/auth_logs.json", "r") as f:
         logs = json.load(f)
 
@@ -131,7 +162,7 @@ async def ingest_sample_logs():
 
 
 @app.post("/ingest-macos")
-async def ingest_macos_logs():
+async def ingest_macos_logs(admin: str = Depends(require_admin)):
     if not ENABLE_MACOS_INGEST:
         return RedirectResponse(url="/", status_code=303)
 
@@ -151,7 +182,8 @@ async def ingest_macos_logs():
 async def alert_update(
     alert_id: int,
     status: str = Form(...),
-    notes: str = Form("")
+    notes: str = Form(""),
+    admin: str = Depends(require_admin)
 ):
     update_alert(alert_id, status, notes)
     return RedirectResponse(url="/", status_code=303)
@@ -161,7 +193,8 @@ async def alert_update(
 async def create_case_route(
     alert_id: int,
     title: str = Form(...),
-    notes: str = Form("")
+    notes: str = Form(""),
+    admin: str = Depends(require_admin)
 ):
     create_case(alert_id, title, notes)
     return RedirectResponse(url="/", status_code=303)
@@ -171,21 +204,22 @@ async def create_case_route(
 async def case_update(
     case_id: int,
     status: str = Form(...),
-    notes: str = Form("")
+    notes: str = Form(""),
+    admin: str = Depends(require_admin)
 ):
     update_case(case_id, status, notes)
     return RedirectResponse(url="/", status_code=303)
 
 
 @app.post("/clear")
-async def clear_data():
+async def clear_data(admin: str = Depends(require_admin)):
     clear_db()
     seed_demo_data_if_needed()
     return RedirectResponse(url="/", status_code=303)
 
 
 @app.get("/export-alerts")
-async def export_alerts():
+async def export_alerts(admin: str = Depends(require_admin)):
     alerts = get_alerts()
 
     output = io.StringIO()
@@ -229,3 +263,4 @@ async def export_alerts():
             "Content-Disposition": "attachment; filename=calebsec_alerts.csv"
         }
     )
+EOF
