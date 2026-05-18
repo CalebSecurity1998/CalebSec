@@ -40,7 +40,10 @@ def init_db():
         description TEXT,
         mitre TEXT,
         status TEXT DEFAULT 'Open',
-        notes TEXT DEFAULT ''
+        notes TEXT DEFAULT '',
+        occurrence_count INTEGER DEFAULT 1,
+        first_seen TEXT DEFAULT '',
+        last_seen TEXT DEFAULT ''
     )
     """)
 
@@ -58,13 +61,13 @@ def init_db():
     ensure_column(cur, "alerts", "first_seen", "TEXT DEFAULT ''")
     ensure_column(cur, "alerts", "last_seen", "TEXT DEFAULT ''")
 
+    now = datetime.now().isoformat(timespec="seconds")
+
     cur.execute("""
     UPDATE alerts
     SET occurrence_count = COALESCE(occurrence_count, 1)
     WHERE occurrence_count IS NULL
     """)
-
-    now = datetime.now().isoformat(timespec="seconds")
 
     cur.execute("""
     UPDATE alerts
@@ -255,6 +258,17 @@ def update_alert(alert_id, status, notes):
     con.close()
 
 
+def delete_alert(alert_id):
+    con = connect()
+    cur = con.cursor()
+
+    cur.execute("DELETE FROM cases WHERE alert_id = ?", (alert_id,))
+    cur.execute("DELETE FROM alerts WHERE id = ?", (alert_id,))
+
+    con.commit()
+    con.close()
+
+
 def create_case(alert_id, title, notes):
     con = connect()
     cur = con.cursor()
@@ -307,6 +321,16 @@ def update_case(case_id, status, notes):
     SET status = ?, notes = ?
     WHERE id = ?
     """, (status, notes, case_id))
+
+    con.commit()
+    con.close()
+
+
+def delete_case(case_id):
+    con = connect()
+    cur = con.cursor()
+
+    cur.execute("DELETE FROM cases WHERE id = ?", (case_id,))
 
     con.commit()
     con.close()
