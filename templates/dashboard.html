@@ -948,12 +948,27 @@
             <a href="/health"><span class="nav-icon">✓</span>Health</a>
         </nav>
 
-        <div class="sidebar-footer">
-            <button class="btn muted-btn mode-toggle" id="themeToggle" type="button">
-                Toggle Light / Dark
-            </button>
-        </div>
-    </aside>
+      <div class="sidebar-footer">
+    {% if is_admin %}
+    <div class="demo-note">
+        Signed in as {{ admin_username }}
+    </div>
+
+    <form method="post" action="/logout">
+        <button class="btn danger mode-toggle" type="submit">
+            Logout
+        </button>
+    </form>
+    {% else %}
+    <a class="btn primary mode-toggle" href="/login">
+        Admin Login
+    </a>
+    {% endif %}
+
+    <button class="btn muted-btn mode-toggle" id="themeToggle" type="button">
+        Toggle Light / Dark
+    </button>
+</div>
 
     <main class="main">
         <section class="hero" id="overview">
