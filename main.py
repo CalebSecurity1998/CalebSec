@@ -19,10 +19,12 @@ from database import (
     get_logs,
     get_alerts,
     update_alert,
+    delete_alert,
     clear_db,
     create_case,
     get_cases,
-    update_case
+    update_case,
+    delete_case
 )
 from macos_ingest import collect_macos_logs
 
@@ -266,6 +268,15 @@ async def alert_update(
     return RedirectResponse(url="/", status_code=303)
 
 
+@app.post("/alert/{alert_id}/delete")
+async def alert_delete(
+    alert_id: int,
+    admin: str = Depends(require_admin)
+):
+    delete_alert(alert_id)
+    return RedirectResponse(url="/", status_code=303)
+
+
 @app.post("/alert/{alert_id}/case")
 async def create_case_route(
     alert_id: int,
@@ -285,6 +296,15 @@ async def case_update(
     admin: str = Depends(require_admin)
 ):
     update_case(case_id, status, notes)
+    return RedirectResponse(url="/", status_code=303)
+
+
+@app.post("/case/{case_id}/delete")
+async def case_delete(
+    case_id: int,
+    admin: str = Depends(require_admin)
+):
+    delete_case(case_id)
     return RedirectResponse(url="/", status_code=303)
 
 
