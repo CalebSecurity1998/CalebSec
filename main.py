@@ -7,6 +7,7 @@ import csv
 import io
 import os
 import secrets
+import math
 from collections import Counter
 
 from detection import run_all_detections
@@ -33,6 +34,9 @@ ENABLE_MACOS_INGEST = os.getenv("ENABLE_MACOS_INGEST", "true").lower() == "true"
 
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "caleb")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "change-this-password")
+
+ALERTS_PER_PAGE = 25
+LOGS_PER_PAGE = 25
 
 init_db()
 
@@ -72,6 +76,18 @@ def seed_demo_data_if_needed():
             insert_alert(alert)
 
 
+def paginate(items, page, page_size):
+    total_items = len(items)
+    total_pages = max(1, math.ceil(total_items / page_size))
+
+    page = max(1, min(page, total_pages))
+
+    start = (page - 1) * page_size
+    end = start + page_size
+
+    return items[start:end], page, total_pages
+
+
 seed_demo_data_if_needed()
 
 
@@ -85,7 +101,9 @@ async def dashboard(
     request: Request,
     q: str = "",
     severity: str = "",
-    status_filter: str = ""
+    status: str = "",
+    alert_page: int = 1,
+    log_page: int = 1
 ):
     all_logs = get_logs()
     all_alerts = get_alerts()
@@ -111,11 +129,23 @@ async def dashboard(
             if alert.get("severity", "").lower() == severity.lower()
         ]
 
-    if status_filter:
+    if status:
         alerts = [
             alert for alert in alerts
-            if alert.get("status", "").lower() == status_filter.lower()
+            if alert.get("status", "").lower() == status.lower()
         ]
+
+    paginated_alerts, alert_page, total_alert_pages = paginate(
+        alerts,
+        alert_page,
+        ALERTS_PER_PAGE
+    )
+
+    paginated_logs, log_page, total_log_pages = paginate(
+        logs,
+        log_page,
+        LOGS_PER_PAGE
+    )
 
     severity_counts = dict(Counter(alert["severity"] for alert in all_alerts))
     event_counts = dict(Counter(log["event_type"] for log in all_logs))
@@ -124,19 +154,23 @@ async def dashboard(
         request=request,
         name="dashboard.html",
         context={
-            "alerts": alerts,
-            "logs": logs,
+            "alerts": paginated_alerts,
+            "logs": paginated_logs,
             "cases": cases,
             "alert_count": len(alerts),
             "log_count": len(logs),
             "case_count": len(cases),
             "q": q,
             "severity": severity,
-            "status": status_filter,
+            "status": status,
             "severity_counts": severity_counts,
             "event_counts": event_counts,
             "macos_ingest_enabled": ENABLE_MACOS_INGEST,
-            "demo_mode": DEMO_MODE
+            "demo_mode": DEMO_MODE,
+            "alert_page": alert_page,
+            "log_page": log_page,
+            "total_alert_pages": total_alert_pages,
+            "total_log_pages": total_log_pages
         }
     )
 
