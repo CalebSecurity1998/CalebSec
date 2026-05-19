@@ -1,0 +1,13 @@
+[
+  {"timestamp":"2026-05-18T12:00:00","event_type":"login_failed","username":"admin","src_ip":"192.168.1.100","country":"US","message":"Failed login attempt"},
+  {"timestamp":"2026-05-18T12:01:00","event_type":"login_failed","username":"admin","src_ip":"192.168.1.100","country":"US","message":"Failed login attempt"},
+  {"timestamp":"2026-05-18T12:02:00","event_type":"login_failed","username":"admin","src_ip":"192.168.1.100","country":"US","message":"Failed login attempt"},
+  {"timestamp":"2026-05-18T12:03:00","event_type":"login_failed","username":"admin","src_ip":"192.168.1.100","country":"US","message":"Failed login attempt"},
+  {"timestamp":"2026-05-18T12:04:00","event_type":"login_failed","username":"admin","src_ip":"192.168.1.100","country":"US","message":"Failed login attempt"},
+  {"timestamp":"2026-05-18T12:05:00","event_type":"login_success","username":"admin","src_ip":"192.168.1.100","country":"US","message":"Successful login"},
+  {"timestamp":"2026-05-18T12:25:00","event_type":"login_success","username":"admin","src_ip":"185.220.101.77","country":"DE","message":"Successful login from foreign IP"},
+  {"timestamp":"2026-05-18T12:30:00","event_type":"process_start","username":"admin","src_ip":"10.0.0.50","message":"powershell.exe -EncodedCommand SQBFAFgA"},
+  {"timestamp":"2026-05-18T12:32:00","event_type":"admin_group_change","username":"admin","src_ip":"10.0.0.50","message":"user hacker added to local administrators group"},
+  {"timestamp":"2026-05-18T12:34:00","event_type":"network_connection","username":"admin","src_ip":"10.0.0.50","dest_ip":"45.227.253.82","dest_domain":"command-control.test","message":"Outbound connection to command-control.test"},
+  {"timestamp":"2026-05-18T12:35:00","event_type":"file_observed","username":"admin","src_ip":"10.0.0.50","file_hash":"44d88612fea8a8f36de82e1278abb02f","message":"Executable written to downloads folder"}
+]

@@ -1,0 +1,5 @@
+{
+  "malicious_ips": ["45.227.253.82", "185.220.101.77", "192.168.1.100"],
+  "malicious_domains": ["evil.example", "command-control.test", "malware-download.test"],
+  "malicious_hashes": ["44d88612fea8a8f36de82e1278abb02f", "e99a18c428cb38d5f260853678922e03"]
+}
