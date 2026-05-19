@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CalebSec Admin Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 28px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background:
+                radial-gradient(circle at top right, rgba(37, 99, 235, 0.24), transparent 28%),
+                radial-gradient(circle at top left, rgba(16, 185, 129, 0.18), transparent 24%),
+                linear-gradient(135deg, #07111f, #111827);
+            color: #e5e7eb;
+        }
+
+        .login-shell {
+            width: 100%;
+            max-width: 980px;
+            display: grid;
+            grid-template-columns: 1fr 440px;
+            border-radius: 34px;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
+        }
+
+        .brand-panel {
+            padding: 46px;
+            background:
+                linear-gradient(145deg, rgba(16, 185, 129, 0.14), rgba(37, 99, 235, 0.14)),
+                rgba(17, 24, 39, 0.95);
+            border-right: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .logo {
+            width: 66px;
+            height: 66px;
+            border-radius: 22px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 26px;
+            background: linear-gradient(135deg, #34d399, #10b981);
+            color: #04130e;
+            font-size: 30px;
+            font-weight: 950;
+            box-shadow: 0 18px 44px rgba(16, 185, 129, 0.24);
+        }
+
+        .brand-panel h1 {
+            margin: 0 0 14px 0;
+            font-size: 48px;
+            line-height: 0.98;
+            letter-spacing: -0.06em;
+            color: #f8fafc;
+        }
+
+        .brand-panel p {
+            margin: 0;
+            max-width: 440px;
+            color: #cbd5e1;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        .feature-list {
+            display: grid;
+            gap: 14px;
+            margin-top: 34px;
+        }
+
+        .feature {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            color: #dbeafe;
+            font-weight: 800;
+        }
+
+        .feature-icon {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: rgba(59, 130, 246, 0.18);
+        }
+
+        .form-panel {
+            padding: 46px 38px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            width: fit-content;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(16, 185, 129, 0.14);
+            color: #6ee7b7;
+            font-size: 13px;
+            font-weight: 950;
+            margin-bottom: 18px;
+        }
+
+        .form-panel h2 {
+            margin: 0 0 10px 0;
+            font-size: 32px;
+            letter-spacing: -0.04em;
+            color: #f8fafc;
+        }
+
+        .form-panel p {
+            margin: 0 0 28px 0;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .error {
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            background: rgba(127, 29, 29, 0.32);
+            color: #fecaca;
+            font-weight: 800;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        input {
+            width: 100%;
+            margin-bottom: 18px;
+            padding: 14px 15px;
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(17, 24, 39, 0.95);
+            color: #e5e7eb;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: rgba(96, 165, 250, 0.8);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+        }
+
+        input[type="hidden"] {
+            display: none;
+        }
+
+        button,
+        .return-link {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            border: none;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 950;
+            cursor: pointer;
+            transition: transform 0.16s ease, opacity 0.16s ease;
+        }
+
+        button:hover,
+        .return-link:hover {
+            transform: translateY(-2px);
+            opacity: 0.96;
+        }
+
+        button {
+            margin-top: 4px;
+            color: #04130e;
+            background: linear-gradient(135deg, #34d399, #10b981);
+        }
+
+        .return-link {
+            margin-top: 12px;
+            color: #f8fafc;
+            background: rgba(148, 163, 184, 0.14);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+        @media (max-width: 900px) {
+            .login-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-panel {
+                border-right: none;
+                border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+                padding: 34px;
+            }
+
+            .form-panel {
+                padding: 34px;
+            }
+
+            .brand-panel h1 {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="login-shell">
+        <section class="brand-panel">
+            <div class="logo">C</div>
+
+            <h1>CalebSec</h1>
+
+            <p>
+                Secure admin access for CalebSec’s SIEM console.
+                Sign in to ingest logs, manage alerts, create cases,
+                export data, and review security workflow activity.
+            </p>
+
+            <div class="feature-list">
+                <div class="feature">
+                    <span class="feature-icon">🛡</span>
+                    <span>Protected analyst actions</span>
+                </div>
+
+                <div class="feature">
+                    <span class="feature-icon">📊</span>
+                    <span>Alert and case management</span>
+                </div>
+
+                <div class="feature">
+                    <span class="feature-icon">↺</span>
+                    <span>Audit trail visibility</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="form-panel">
+            <div class="eyebrow">Admin Access</div>
+
+            <h2>Sign in</h2>
+
+            <p>
+                Use your CalebSec administrator credentials to unlock protected actions.
+            </p>
+
+            {% if error %}
+            <div class="error">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" action="/login">
+                <label for="username">Username</label>
+                <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    required
+                    autocomplete="username"
+                >
+
+                <label for="password">Password</label>
+                <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    autocomplete="current-password"
+                >
+
+                <button type="submit">Sign In to CalebSec</button>
+            </form>
+
+            <a class="return-link" href="/">Return to Dashboard</a>
+        </section>
+    </main>
+</body>
+</html>
