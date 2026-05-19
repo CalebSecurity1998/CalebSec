@@ -1,37 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>CalebSec</title>
+    <meta charset="UTF-8">
+    <title>CalebSec Security Console</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         :root {
-            --bg: #07111f;
-            --bg-soft: #0d1727;
-            --panel: rgba(15, 23, 42, 0.96);
-            --panel-alt: rgba(17, 24, 39, 0.94);
-            --line: rgba(148, 163, 184, 0.14);
+            --bg: #08111f;
+            --bg-soft: #0f172a;
+            --panel: rgba(15, 23, 42, 0.95);
+            --panel-strong: rgba(17, 24, 39, 0.98);
+            --panel-muted: rgba(30, 41, 59, 0.82);
+            --border: rgba(148, 163, 184, 0.16);
+            --border-strong: rgba(148, 163, 184, 0.26);
             --text: #e5e7eb;
             --muted: #94a3b8;
-            --white: #f8fafc;
-            --green: #10b981;
-            --blue: #2563eb;
-            --red: #dc2626;
-            --orange: #f97316;
-            --yellow: #eab308;
-            --purple: #8b5cf6;
-            --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+            --heading: #f8fafc;
+            --green: #34d399;
+            --green-strong: #10b981;
+            --blue: #60a5fa;
+            --blue-strong: #2563eb;
+            --yellow: #fbbf24;
+            --orange: #fb923c;
+            --red: #f87171;
+            --red-strong: #ef4444;
+            --purple: #c084fc;
+            --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+            --radius-lg: 28px;
+            --radius-md: 20px;
+            --radius-sm: 14px;
         }
 
-        body.light {
+        body.light-mode {
             --bg: #eef4fb;
-            --bg-soft: #f8fbff;
-            --panel: rgba(255, 255, 255, 0.96);
-            --panel-alt: rgba(248, 250, 252, 0.98);
-            --line: rgba(51, 65, 85, 0.14);
+            --bg-soft: #f8fafc;
+            --panel: rgba(255, 255, 255, 0.95);
+            --panel-strong: rgba(255, 255, 255, 0.98);
+            --panel-muted: rgba(241, 245, 249, 0.95);
+            --border: rgba(15, 23, 42, 0.12);
+            --border-strong: rgba(15, 23, 42, 0.18);
             --text: #0f172a;
             --muted: #475569;
-            --white: #0f172a;
+            --heading: #020617;
             --shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
         }
 
@@ -46,691 +57,660 @@
         body {
             margin: 0;
             min-height: 100vh;
+            color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
             background:
                 radial-gradient(circle at top right, rgba(37, 99, 235, 0.22), transparent 28%),
-                radial-gradient(circle at top left, rgba(16, 185, 129, 0.18), transparent 24%),
-                linear-gradient(135deg, var(--bg), #111827);
-            color: var(--text);
-            transition: background 0.25s ease, color 0.25s ease;
+                radial-gradient(circle at top left, rgba(16, 185, 129, 0.17), transparent 24%),
+                var(--bg);
         }
 
-        body.light {
-            background:
-                radial-gradient(circle at top right, rgba(37, 99, 235, 0.16), transparent 28%),
-                radial-gradient(circle at top left, rgba(16, 185, 129, 0.14), transparent 24%),
-                linear-gradient(135deg, var(--bg), #dbeafe);
+        a {
+            color: inherit;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: 78px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 22px;
+            padding: 0 28px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(20px);
+        }
+
+        body.light-mode .topbar {
+            background: rgba(248, 250, 252, 0.88);
+        }
+
+        .topbar-left,
+        .topbar-right,
+        .brand,
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .topbar-left {
+            gap: 30px;
+            min-width: 0;
+        }
+
+        .brand {
+            gap: 14px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .brand-mark {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border-radius: 17px;
+            font-weight: 950;
+            font-size: 22px;
+            color: #04130e;
+            background: linear-gradient(135deg, var(--green), var(--green-strong));
+            box-shadow: 0 16px 34px rgba(16, 185, 129, 0.22);
+        }
+
+        .brand-copy strong {
+            display: block;
+            color: var(--heading);
+            font-size: 18px;
+            letter-spacing: -0.03em;
+        }
+
+        .brand-copy span {
+            display: block;
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .nav-links {
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .nav-links::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-link {
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 0 15px;
+            border-radius: 999px;
+            text-decoration: none;
+            color: var(--muted);
+            border: 1px solid transparent;
+            font-size: 14px;
+            font-weight: 900;
+            transition: 0.18s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--heading);
+            border-color: var(--border);
+            background: var(--panel-muted);
+            transform: translateY(-1px);
+        }
+
+        .topbar-right {
+            position: relative;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 0 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--panel-muted);
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 999px;
+            background: var(--green);
+            box-shadow: 0 0 0 5px rgba(52, 211, 153, 0.12);
+        }
+
+        .menu-toggle {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--panel-strong);
+            color: var(--heading);
+            cursor: pointer;
+            font-size: 22px;
+            font-weight: 950;
+            transition: 0.18s ease;
+        }
+
+        .menu-toggle:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-strong);
+        }
+
+        .settings-menu {
+            position: absolute;
+            top: 62px;
+            right: 0;
+            width: min(360px, calc(100vw - 28px));
+            padding: 18px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            background: var(--panel-strong);
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .settings-menu.open {
+            display: block;
+        }
+
+        .menu-title {
+            margin: 0 0 4px;
+            color: var(--heading);
+            font-size: 18px;
+            letter-spacing: -0.03em;
+        }
+
+        .menu-subtitle {
+            margin: 0 0 16px;
+            color: var(--muted);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .menu-stack {
+            display: grid;
+            gap: 10px;
+        }
+
+        .menu-note {
+            padding: 13px 14px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--panel-muted);
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: 800;
         }
 
         .layout {
+            width: min(1600px, calc(100vw - 36px));
+            margin: 28px auto 46px;
             display: grid;
-            grid-template-columns: 280px 1fr;
-            min-height: 100vh;
+            grid-template-columns: 320px minmax(0, 1fr);
+            gap: 24px;
         }
 
         .sidebar {
             position: sticky;
-            top: 0;
-            height: 100vh;
-            padding: 28px 20px;
-            background: rgba(2, 6, 23, 0.74);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--line);
+            top: 102px;
+            align-self: start;
+            padding: 22px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            background: var(--panel);
+            box-shadow: var(--shadow);
         }
 
-        body.light .sidebar {
-            background: rgba(255, 255, 255, 0.76);
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 28px;
-        }
-
-        .logo {
-            width: 52px;
-            height: 52px;
-            border-radius: 18px;
-            display: grid;
-            place-items: center;
-            font-size: 24px;
-            font-weight: 900;
-            color: #04130e;
-            background: linear-gradient(135deg, #34d399, #10b981);
-            box-shadow: 0 18px 40px rgba(16, 185, 129, 0.22);
-        }
-
-        .brand-title {
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--white);
+        .sidebar h2,
+        .sidebar h3 {
+            margin: 0;
+            color: var(--heading);
             letter-spacing: -0.03em;
         }
 
-        .brand-subtitle {
-            color: var(--muted);
-            font-size: 13px;
-            margin-top: 3px;
+        .sidebar h2 {
+            font-size: 22px;
         }
 
-        .nav {
+        .sidebar-copy {
+            margin: 10px 0 20px;
+            color: var(--muted);
+            line-height: 1.55;
+            font-size: 14px;
+        }
+
+        .sidebar-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .sidebar-section h3 {
+            margin-bottom: 12px;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
+
+        .action-grid {
             display: grid;
             gap: 10px;
-            margin-top: 24px;
         }
 
-        .nav a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 14px;
-            border-radius: 16px;
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 800;
-            background: transparent;
-            border: 1px solid transparent;
-            transition: 0.18s ease;
-        }
-
-        .nav a:hover {
-            transform: translateX(2px);
-            background: rgba(148, 163, 184, 0.12);
-            border-color: var(--line);
-        }
-
-        .nav-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 10px;
+        .content {
+            min-width: 0;
             display: grid;
-            place-items: center;
-            background: rgba(59, 130, 246, 0.16);
+            gap: 24px;
         }
 
-        .sidebar-footer {
-            position: absolute;
-            left: 20px;
-            right: 20px;
-            bottom: 24px;
-            display: grid;
-            gap: 12px;
-        }
-
-        .mode-toggle {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .main {
-            padding: 32px;
-            max-width: 1460px;
-        }
-
-        .hero,
-        .panel,
-        .summary-card,
-        .analytics-card,
-        .alert-card,
-        .case-card {
+        .panel {
+            scroll-margin-top: 104px;
+            padding: 26px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
             background: var(--panel);
-            border: 1px solid var(--line);
             box-shadow: var(--shadow);
         }
 
         .hero {
-            padding: 30px;
-            border-radius: 30px;
-            animation: rise 0.45s ease both;
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.9fr);
+            gap: 22px;
+            align-items: stretch;
         }
 
-        .hero-top {
-            display: flex;
-            justify-content: space-between;
-            gap: 24px;
-            align-items: center;
+        .hero-copy {
+            padding: 30px;
+            border-radius: 26px;
+            border: 1px solid var(--border);
+            background:
+                linear-gradient(135deg, rgba(52, 211, 153, 0.11), rgba(37, 99, 235, 0.11)),
+                var(--panel-strong);
         }
 
         .eyebrow {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
+            min-height: 34px;
+            padding: 0 12px;
             border-radius: 999px;
-            background: rgba(16, 185, 129, 0.14);
-            color: #6ee7b7;
-            font-weight: 900;
+            border: 1px solid var(--border);
+            background: var(--panel-muted);
+            color: var(--green);
             font-size: 13px;
-            margin-bottom: 14px;
-        }
-
-        body.light .eyebrow {
-            color: #047857;
+            font-weight: 950;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         .hero h1 {
-            margin: 0 0 10px 0;
-            font-size: clamp(38px, 5vw, 62px);
+            margin: 18px 0 12px;
+            color: var(--heading);
+            font-size: clamp(36px, 4vw, 58px);
             line-height: 0.98;
-            letter-spacing: -0.06em;
-            color: var(--white);
+            letter-spacing: -0.07em;
         }
 
         .hero p {
             margin: 0;
-            max-width: 760px;
+            max-width: 720px;
             color: var(--muted);
-            line-height: 1.65;
-            font-size: 17px;
+            line-height: 1.7;
+            font-size: 16px;
         }
 
-        .hero-status {
-            padding: 16px 18px;
-            border-radius: 999px;
-            background: rgba(16, 185, 129, 0.14);
-            color: #6ee7b7;
-            border: 1px solid rgba(16, 185, 129, 0.28);
-            font-weight: 900;
-            white-space: nowrap;
+        .notice {
+            margin-top: 20px;
+            padding: 15px 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--text);
+            font-weight: 850;
         }
 
-        body.light .hero-status {
-            color: #047857;
-        }
-
-        .summary-strip {
+        .hero-metrics {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 16px;
-            margin-top: 26px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
         }
 
-        .summary-card {
-            padding: 18px;
+        .metric {
+            min-height: 132px;
+            padding: 20px;
             border-radius: 22px;
-            animation: rise 0.45s ease both;
+            border: 1px solid var(--border);
+            background: var(--panel-strong);
         }
 
-        .summary-top {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            align-items: center;
+        .metric-label {
             color: var(--muted);
-            font-weight: 800;
             font-size: 13px;
-        }
-
-        .summary-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 14px;
-            display: grid;
-            place-items: center;
-            font-size: 20px;
-            background: rgba(148, 163, 184, 0.12);
-        }
-
-        .summary-value {
-            margin-top: 16px;
-            font-size: 38px;
             font-weight: 950;
-            color: var(--white);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .metric-value {
+            display: block;
+            margin-top: 16px;
+            color: var(--heading);
+            font-size: 42px;
+            line-height: 1;
+            font-weight: 950;
             letter-spacing: -0.05em;
         }
 
-        .toolbar {
+        .metric-note {
+            display: block;
+            margin-top: 9px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .section-head {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .section-head h2 {
+            margin: 0;
+            color: var(--heading);
+            font-size: 28px;
+            letter-spacing: -0.04em;
+        }
+
+        .section-head p {
+            margin: 7px 0 0;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .mini-stat-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
-            margin: 24px 0;
+            gap: 10px;
         }
 
-        button,
-        .btn {
-            appearance: none;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            padding: 13px 16px;
-            border-radius: 16px;
-            font-weight: 900;
-            font-size: 14px;
-            transition: transform 0.16s ease, opacity 0.16s ease, box-shadow 0.16s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 9px;
-        }
-
-        button:hover,
-        .btn:hover {
-            transform: translateY(-2px);
-            opacity: 0.96;
-        }
-
-        .primary {
-            background: linear-gradient(135deg, #34d399, #10b981);
-            color: #04130e;
-            box-shadow: 0 18px 34px rgba(16, 185, 129, 0.18);
-        }
-
-        .secondary {
-            background: linear-gradient(135deg, #60a5fa, #2563eb);
-            color: white;
-            box-shadow: 0 18px 34px rgba(37, 99, 235, 0.18);
-        }
-
-        .muted-btn {
-            background: rgba(148, 163, 184, 0.14);
-            color: var(--white);
-            border: 1px solid var(--line);
-        }
-
-        .danger {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-            box-shadow: 0 18px 34px rgba(220, 38, 38, 0.16);
-        }
-
-        .demo-note {
-            padding: 13px 16px;
-            border-radius: 16px;
-            background: rgba(59, 130, 246, 0.14);
-            border: 1px solid rgba(96, 165, 250, 0.28);
-            color: #bfdbfe;
-            font-weight: 900;
+        .mini-stat {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-        }
-
-        body.light .demo-note {
-            color: #1d4ed8;
-        }
-
-        .panel {
-            padding: 24px;
-            border-radius: 28px;
-            margin-bottom: 24px;
-            animation: rise 0.45s ease both;
-        }
-
-        .panel-heading {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 18px;
-            margin-bottom: 20px;
-        }
-
-        .panel-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .panel-title h2 {
-            margin: 0;
-            font-size: 26px;
-            color: var(--white);
-            letter-spacing: -0.03em;
-        }
-
-        .panel-title span {
-            width: 42px;
-            height: 42px;
-            border-radius: 16px;
-            display: grid;
-            place-items: center;
-            background: rgba(59, 130, 246, 0.16);
-            font-size: 20px;
-        }
-
-        .upload-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: 380px 1fr;
-            gap: 18px;
-        }
-
-        .analytics-card {
-            padding: 22px;
-            border-radius: 24px;
-        }
-
-        .donut-wrap {
-            display: grid;
-            place-items: center;
-            min-height: 270px;
-        }
-
-        .donut {
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            background:
-                conic-gradient(
-                    #ef4444 0 {{ critical_percent }}%,
-                    #f97316 {{ critical_percent }}% {{ critical_percent + high_percent }}%,
-                    #eab308 {{ critical_percent + high_percent }}% {{ critical_percent + high_percent + medium_percent }}%,
-                    rgba(148, 163, 184, 0.18) {{ critical_percent + high_percent + medium_percent }}% 100%
-                );
-            position: relative;
-            display: grid;
-            place-items: center;
-            box-shadow: inset 0 0 0 1px var(--line);
-        }
-
-        .donut::after {
-            content: "";
-            width: 138px;
-            height: 138px;
-            border-radius: 50%;
-            background: var(--panel);
-            border: 1px solid var(--line);
-            position: absolute;
-        }
-
-        .donut-center {
-            z-index: 1;
-            text-align: center;
-        }
-
-        .donut-center strong {
-            display: block;
-            font-size: 34px;
-            color: var(--white);
-            line-height: 1;
-        }
-
-        .donut-center span {
+            min-height: 40px;
+            padding: 0 13px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--panel-muted);
             color: var(--muted);
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 900;
         }
 
-        .legend {
-            display: grid;
-            gap: 10px;
-            margin-top: 16px;
-        }
-
-        .legend-item {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            color: var(--text);
-            font-weight: 800;
-        }
-
-        .legend-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .dot-critical {
-            background: #ef4444;
-        }
-
-        .dot-high {
-            background: #f97316;
-        }
-
-        .dot-medium {
-            background: #eab308;
-        }
-
-        .trend-list {
+        .grid-4,
+        .grid-3,
+        .grid-2 {
             display: grid;
             gap: 16px;
         }
 
-        .trend-row {
+        .grid-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .summary-card {
+            padding: 20px;
+            border-radius: 22px;
+            border: 1px solid var(--border);
+            background: var(--panel-strong);
+        }
+
+        .summary-card span {
+            display: block;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 12px;
+            font-weight: 950;
+        }
+
+        .summary-card strong {
+            display: block;
+            margin-top: 13px;
+            color: var(--heading);
+            font-size: 34px;
+            letter-spacing: -0.05em;
+        }
+
+        .summary-card p {
+            margin: 9px 0 0;
+            color: var(--muted);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .chart-card {
+            padding: 20px;
+            border-radius: 22px;
+            border: 1px solid var(--border);
+            background: var(--panel-strong);
+        }
+
+        .chart-card h3 {
+            margin: 0 0 16px;
+            color: var(--heading);
+            font-size: 18px;
+            letter-spacing: -0.03em;
+        }
+
+        .bar-stack {
+            display: grid;
+            gap: 14px;
+        }
+
+        .bar-row {
             display: grid;
             gap: 8px;
         }
 
-        .trend-label {
+        .bar-meta {
             display: flex;
             justify-content: space-between;
-            gap: 12px;
-            color: var(--text);
-            font-weight: 800;
+            gap: 14px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 900;
         }
 
-        .track {
-            width: 100%;
-            height: 14px;
+        .bar-track {
+            height: 12px;
+            overflow: hidden;
             border-radius: 999px;
             background: rgba(148, 163, 184, 0.16);
-            overflow: hidden;
         }
 
-        .fill {
+        .bar-fill {
             height: 100%;
-            min-width: 10px;
             border-radius: 999px;
-            background: linear-gradient(90deg, #60a5fa, #2563eb);
-            animation: fillGrow 0.7s ease both;
         }
 
-        .filter-row {
+        .critical-fill {
+            width: {{ critical_percent }}%;
+            background: linear-gradient(90deg, #fb7185, #ef4444);
+        }
+
+        .high-fill {
+            width: {{ high_percent }}%;
+            background: linear-gradient(90deg, #fdba74, #f97316);
+        }
+
+        .medium-fill {
+            width: {{ medium_percent }}%;
+            background: linear-gradient(90deg, #fde68a, #eab308);
+        }
+
+        .form-row {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr auto auto;
+            grid-template-columns: minmax(240px, 1.4fr) repeat(3, minmax(150px, 0.7fr)) auto;
             gap: 12px;
+            align-items: end;
+            margin-bottom: 22px;
         }
 
-        .quick-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 16px;
+        .field {
+            display: grid;
+            gap: 8px;
+        }
+
+        label {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
         }
 
         input,
         select,
         textarea {
             width: 100%;
-            background: var(--panel-alt);
-            border: 1px solid var(--line);
             color: var(--text);
-            padding: 13px 14px;
+            background: var(--panel-strong);
+            border: 1px solid var(--border);
             border-radius: 16px;
-            font-size: 14px;
             outline: none;
-            transition: box-shadow 0.16s ease, border-color 0.16s ease;
+            transition: 0.18s ease;
+        }
+
+        input,
+        select {
+            min-height: 48px;
+            padding: 0 14px;
         }
 
         textarea {
-            min-height: 92px;
+            min-height: 90px;
+            padding: 14px;
             resize: vertical;
-            margin-top: 10px;
         }
 
         input:focus,
         select:focus,
         textarea:focus {
-            border-color: rgba(96, 165, 250, 0.8);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.16);
+            border-color: rgba(96, 165, 250, 0.75);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
         }
 
-        .section-stack {
-            display: grid;
-            gap: 18px;
-        }
-
-        .alert-card,
-        .case-card {
-            padding: 20px;
-            border-radius: 24px;
-            animation: rise 0.45s ease both;
-        }
-
-        .alert-card {
-            border-left: 7px solid #64748b;
-        }
-
-        .alert-card.Critical {
-            border-left-color: #ef4444;
-            background:
-                linear-gradient(135deg, rgba(127, 29, 29, 0.28), var(--panel));
-        }
-
-        .alert-card.High {
-            border-left-color: #f97316;
-            background:
-                linear-gradient(135deg, rgba(124, 45, 18, 0.24), var(--panel));
-        }
-
-        .alert-card.Medium {
-            border-left-color: #eab308;
-            background:
-                linear-gradient(135deg, rgba(113, 63, 18, 0.22), var(--panel));
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            gap: 18px;
-            align-items: flex-start;
-            margin-bottom: 14px;
-        }
-
-        .card-title {
-            font-size: 20px;
-            font-weight: 950;
-            color: var(--white);
-            margin-bottom: 8px;
-        }
-
-        .meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            color: var(--muted);
-            font-size: 13px;
-            font-weight: 800;
-        }
-
-        .badge-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 9px;
-        }
-
-        .badge {
+        .btn {
+            min-height: 48px;
             display: inline-flex;
             align-items: center;
-            padding: 7px 11px;
-            border-radius: 999px;
-            font-size: 12px;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 16px;
+            border: 1px solid transparent;
+            border-radius: 16px;
+            text-decoration: none;
+            cursor: pointer;
             font-weight: 950;
-            letter-spacing: 0.02em;
+            transition: transform 0.16s ease, opacity 0.16s ease, border-color 0.16s ease;
         }
 
-        .badge-critical {
-            background: rgba(239, 68, 68, 0.18);
-            color: #fca5a5;
+        .btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.97;
         }
 
-        body.light .badge-critical {
-            color: #b91c1c;
+        .btn.primary {
+            color: #04130e;
+            background: linear-gradient(135deg, var(--green), var(--green-strong));
         }
 
-        .badge-high {
-            background: rgba(249, 115, 22, 0.18);
-            color: #fdba74;
+        .btn.secondary {
+            color: #eff6ff;
+            background: linear-gradient(135deg, var(--blue), var(--blue-strong));
         }
 
-        body.light .badge-high {
-            color: #c2410c;
+        .btn.muted-btn {
+            color: var(--heading);
+            background: var(--panel-muted);
+            border-color: var(--border);
         }
 
-        .badge-medium {
-            background: rgba(234, 179, 8, 0.18);
-            color: #fde68a;
+        .btn.warning {
+            color: #111827;
+            background: linear-gradient(135deg, #fcd34d, #f59e0b);
         }
 
-        body.light .badge-medium {
-            color: #a16207;
+        .btn.danger {
+            color: white;
+            background: linear-gradient(135deg, #fb7185, var(--red-strong));
         }
 
-        .badge-status {
-            background: rgba(59, 130, 246, 0.16);
-            color: #93c5fd;
+        .btn.block {
+            width: 100%;
         }
 
-        body.light .badge-status {
-            color: #1d4ed8;
-        }
-
-        .description {
-            color: var(--text);
-            line-height: 1.65;
-            margin: 16px 0;
-        }
-
-        .description small {
-            color: var(--muted);
-            font-weight: 800;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 220px 1fr;
-            gap: 12px;
-            align-items: start;
-            margin-top: 14px;
-        }
-
-        .inline-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-
-        .case-form {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--line);
-        }
-
-        .table-shell {
+        .table-wrap {
             overflow-x: auto;
             border-radius: 22px;
-            border: 1px solid var(--line);
-            background: var(--panel-alt);
+            border: 1px solid var(--border);
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
             min-width: 860px;
+            border-collapse: collapse;
+            background: var(--panel-strong);
         }
 
         th,
         td {
             padding: 16px;
-            text-align: left;
-            border-bottom: 1px solid var(--line);
+            border-bottom: 1px solid var(--border);
             vertical-align: top;
+            text-align: left;
         }
 
         th {
@@ -739,743 +719,911 @@
             text-transform: uppercase;
             letter-spacing: 0.08em;
             font-weight: 950;
+            background: var(--panel-muted);
         }
 
         td {
             color: var(--text);
             font-size: 14px;
-        }
-
-        tr:hover td {
-            background: rgba(148, 163, 184, 0.08);
-        }
-
-        .event-pill,
-        .action-pill {
-            display: inline-flex;
-            padding: 7px 11px;
-            border-radius: 999px;
-            font-weight: 950;
-            font-size: 12px;
-        }
-
-        .event-pill {
-            background: rgba(139, 92, 246, 0.16);
-            color: #c4b5fd;
-        }
-
-        body.light .event-pill {
-            color: #6d28d9;
-        }
-
-        .action-pill {
-            background: rgba(16, 185, 129, 0.16);
-            color: #6ee7b7;
-        }
-
-        body.light .action-pill {
-            color: #047857;
-        }
-
-        .message-cell {
-            max-width: 440px;
-            color: var(--muted);
             line-height: 1.55;
         }
 
-        .empty-state {
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 30px;
+            padding: 0 11px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--panel-muted);
+            font-size: 12px;
+            font-weight: 950;
+        }
+
+        .badge.critical {
+            color: #fecdd3;
+            border-color: rgba(244, 63, 94, 0.32);
+            background: rgba(244, 63, 94, 0.16);
+        }
+
+        .badge.high {
+            color: #fed7aa;
+            border-color: rgba(249, 115, 22, 0.32);
+            background: rgba(249, 115, 22, 0.16);
+        }
+
+        .badge.medium {
+            color: #fde68a;
+            border-color: rgba(234, 179, 8, 0.32);
+            background: rgba(234, 179, 8, 0.16);
+        }
+
+        .badge.low {
+            color: #bfdbfe;
+            border-color: rgba(59, 130, 246, 0.32);
+            background: rgba(59, 130, 246, 0.16);
+        }
+
+        .badge.status {
+            color: var(--heading);
+        }
+
+        .inline-form,
+        .stack-form {
             display: grid;
-            place-items: center;
-            text-align: center;
-            min-height: 180px;
-            border-radius: 24px;
-            border: 1px dashed var(--line);
+            gap: 10px;
+        }
+
+        .alert-actions,
+        .case-actions {
+            display: grid;
+            gap: 10px;
+            min-width: 260px;
+        }
+
+        .two-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .record-card-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .record-card {
+            padding: 20px;
+            border-radius: 22px;
+            border: 1px solid var(--border);
+            background: var(--panel-strong);
+        }
+
+        .record-card h3 {
+            margin: 0 0 10px;
+            color: var(--heading);
+            font-size: 19px;
+            letter-spacing: -0.03em;
+        }
+
+        .record-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .record-card p {
             color: var(--muted);
-            padding: 28px;
+            line-height: 1.6;
         }
 
-        .empty-icon {
-            font-size: 38px;
-            margin-bottom: 10px;
-        }
-
-        .empty-state strong {
-            display: block;
-            color: var(--white);
-            font-size: 18px;
-            margin-bottom: 6px;
+        .empty {
+            padding: 24px;
+            border-radius: 22px;
+            border: 1px dashed var(--border-strong);
+            background: var(--panel-strong);
+            color: var(--muted);
+            text-align: center;
+            font-weight: 850;
         }
 
         .pagination {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 18px;
             flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-top: 18px;
         }
 
-        .page-pill {
-            padding: 10px 14px;
-            border-radius: 999px;
-            background: rgba(148, 163, 184, 0.12);
-            color: var(--text);
+        .pagination span {
+            color: var(--muted);
             font-weight: 900;
+        }
+
+        .page-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .audit-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .audit-item {
+            display: grid;
+            grid-template-columns: minmax(140px, 0.7fr) minmax(140px, 0.7fr) 1fr;
+            gap: 14px;
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: var(--panel-strong);
+        }
+
+        .audit-item strong {
+            color: var(--heading);
+        }
+
+        .audit-item span,
+        .audit-item p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.5;
             font-size: 14px;
         }
 
-        .toast {
-            position: fixed;
-            top: 22px;
-            right: 22px;
-            z-index: 9999;
-            max-width: 420px;
-            padding: 16px 18px;
+        .quick-guide {
+            display: grid;
+            gap: 12px;
+        }
+
+        .quick-guide-item {
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--panel-muted);
+        }
+
+        .quick-guide-item strong {
+            display: block;
+            color: var(--heading);
+            margin-bottom: 6px;
+        }
+
+        .quick-guide-item span {
+            display: block;
+            color: var(--muted);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .file-input {
+            padding: 12px;
+            min-height: auto;
+        }
+
+        .demo-banner {
+            padding: 14px;
             border-radius: 18px;
-            background: rgba(15, 23, 42, 0.97);
-            border: 1px solid rgba(16, 185, 129, 0.34);
-            box-shadow: var(--shadow);
-            color: #d1fae5;
-            font-weight: 950;
-            animation: toastIn 0.35s ease both;
+            border: 1px solid rgba(96, 165, 250, 0.24);
+            background: rgba(37, 99, 235, 0.14);
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.55;
+            font-weight: 850;
         }
 
-        body.light .toast {
-            background: rgba(255, 255, 255, 0.98);
-            color: #047857;
-        }
-
-        @keyframes rise {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fillGrow {
-            from {
-                width: 0;
-            }
-        }
-
-        @keyframes toastIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 1180px) {
+        @media (max-width: 1280px) {
             .layout {
                 grid-template-columns: 1fr;
             }
 
             .sidebar {
-                position: relative;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid var(--line);
-            }
-
-            .sidebar-footer {
                 position: static;
-                margin-top: 20px;
             }
 
-            .summary-strip,
-            .analytics-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        @media (max-width: 900px) {
-            .main {
-                padding: 20px;
-            }
-
-            .hero-top,
-            .card-header,
-            .panel-heading {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .summary-strip,
-            .analytics-grid,
-            .filter-row,
-            .form-grid,
-            .upload-row {
+            .hero {
                 grid-template-columns: 1fr;
             }
 
-            .toolbar {
-                display: grid;
+            .grid-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .form-row .search-wide {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 960px) {
+            .topbar {
+                height: auto;
+                min-height: 78px;
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 16px;
+            }
+
+            .topbar-left,
+            .topbar-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .nav-links {
+                width: 100%;
+            }
+
+            .layout {
+                width: min(100%, calc(100vw - 24px));
+                margin-top: 18px;
+            }
+
+            .section-head {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .audit-item {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .hero-copy,
+            .panel,
+            .sidebar {
+                padding: 20px;
+            }
+
+            .hero-metrics,
+            .grid-4,
+            .grid-2,
+            .form-row,
+            .two-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-copy span,
+            .status-pill {
+                display: none;
+            }
+
+            .settings-menu {
+                right: -2px;
+            }
+
+            .nav-link {
+                min-height: 40px;
+                padding: 0 13px;
+            }
+
+            table {
+                min-width: 760px;
             }
         }
     </style>
 </head>
 
 <body>
-{% if notice %}
-<div class="toast" id="toast">✓ {{ notice }}</div>
-{% endif %}
+    <header class="topbar">
+        <div class="topbar-left">
+            <a class="brand" href="#dashboard">
+                <div class="brand-mark">C</div>
+                <div class="brand-copy">
+                    <strong>CalebSec</strong>
+                    <span>Security Console</span>
+                </div>
+            </a>
 
-<div class="layout">
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="logo">C</div>
-            <div>
-                <div class="brand-title">CalebSec</div>
-                <div class="brand-subtitle">Personal SIEM Console</div>
-            </div>
+            <nav class="nav-links" aria-label="Primary navigation">
+                <a class="nav-link" href="#dashboard">Dashboard</a>
+                <a class="nav-link" href="#alerts">Alerts</a>
+                <a class="nav-link" href="#logs">Logs</a>
+                <a class="nav-link" href="#cases">Cases</a>
+                <a class="nav-link" href="#audit">Audit Trail</a>
+            </nav>
         </div>
 
-        <nav class="nav">
-            <a href="#overview"><span class="nav-icon">⌂</span>Overview</a>
-            <a href="#upload"><span class="nav-icon">⇪</span>Upload</a>
-            <a href="#analytics"><span class="nav-icon">◔</span>Analytics</a>
-            <a href="#alerts"><span class="nav-icon">!</span>Alerts</a>
-            <a href="#cases"><span class="nav-icon">▣</span>Cases</a>
-            <a href="#logs"><span class="nav-icon">≡</span>Logs</a>
-            <a href="#audit"><span class="nav-icon">↺</span>Audit Trail</a>
-            <a href="/health"><span class="nav-icon">✓</span>Health</a>
-        </nav>
-
-      <div class="sidebar-footer">
-    {% if is_admin %}
-    <div class="demo-note">
-        Signed in as {{ admin_username }}
-    </div>
-
-    <form method="post" action="/logout">
-        <button class="btn danger mode-toggle" type="submit">
-            Logout
-        </button>
-    </form>
-    {% else %}
-    <a class="btn primary mode-toggle" href="/login">
-        Admin Login
-    </a>
-    {% endif %}
-
-    <button class="btn muted-btn mode-toggle" id="themeToggle" type="button">
-        Toggle Light / Dark
-    </button>
-</div>
-
-    <main class="main">
-        <section class="hero" id="overview">
-            <div class="hero-top">
-                <div>
-                    <div class="eyebrow">● Live Security Dashboard</div>
-                    <h1>CalebSec</h1>
-                    <p>
-                        A polished SIEM-style monitoring console for alert triage,
-                        security event review, lightweight case management, file-based ingestion,
-                        and audit visibility.
-                    </p>
-                </div>
-
-                <div class="hero-status">System Online</div>
+        <div class="topbar-right">
+            <div class="status-pill">
+                <span class="status-dot"></span>
+                {% if demo_mode %}
+                Hosted Demo Mode
+                {% else %}
+                Local Analyst Mode
+                {% endif %}
             </div>
 
-            <div class="summary-strip">
-                <div class="summary-card">
-                    <div class="summary-top">
-                        <span>Open Alerts</span>
-                        <span class="summary-icon">🚨</span>
-                    </div>
-                    <div class="summary-value">{{ open_alert_count }}</div>
-                </div>
+            <button
+                class="menu-toggle"
+                id="menuToggle"
+                type="button"
+                aria-label="Open CalebSec options"
+                aria-expanded="false"
+            >
+                ☰
+            </button>
 
-                <div class="summary-card">
-                    <div class="summary-top">
-                        <span>Critical Alerts</span>
-                        <span class="summary-icon">⚠</span>
-                    </div>
-                    <div class="summary-value">{{ critical_alert_count }}</div>
-                </div>
+            <aside class="settings-menu" id="settingsMenu" aria-label="CalebSec options menu">
+                <h2 class="menu-title">Options & Settings</h2>
+                <p class="menu-subtitle">
+                    Account controls, console tools, and display preferences.
+                </p>
 
-                <div class="summary-card">
-                    <div class="summary-top">
-                        <span>High Alerts</span>
-                        <span class="summary-icon">▲</span>
-                    </div>
-                    <div class="summary-value">{{ high_alert_count }}</div>
-                </div>
-
-                <div class="summary-card">
-                    <div class="summary-top">
-                        <span>Cases Investigating</span>
-                        <span class="summary-icon">🔎</span>
-                    </div>
-                    <div class="summary-value">{{ investigating_case_count }}</div>
-                </div>
-            </div>
-        </section>
-
-        <section class="toolbar">
-            {% if macos_ingest_enabled %}
-            <form method="post" action="/ingest-macos">
-                <button class="primary" type="submit">⬇ Ingest macOS Logs</button>
-            </form>
-            {% else %}
-            <div class="demo-note">☁ Hosted demo mode: macOS log ingestion disabled</div>
-            {% endif %}
-
-            <form method="post" action="/ingest">
-                <button class="secondary" type="submit">＋ Ingest Sample Logs</button>
-            </form>
-
-            <a class="btn muted-btn" href="/export-alerts">⇩ Export Alerts CSV</a>
-
-            <form method="post" action="/clear">
-                <button class="danger" type="submit">🗑 Clear Database</button>
-            </form>
-        </section>
-
-        <section class="panel" id="upload">
-            <div class="panel-heading">
-                <div class="panel-title">
-                    <span>⇪</span>
-                    <h2>Manual JSON Log Upload</h2>
-                </div>
-            </div>
-
-            <form class="upload-row" method="post" action="/upload-logs" enctype="multipart/form-data">
-                <input type="file" name="file" accept=".json,application/json" required>
-                <button class="secondary" type="submit">Upload and Analyze</button>
-            </form>
-
-            <div class="description">
-                Upload a JSON array of log objects. CalebSec accepts up to 1000 records and a maximum file size of 2 MB.
-            </div>
-        </section>
-
-        <section class="panel" id="analytics">
-            <div class="panel-heading">
-                <div class="panel-title">
-                    <span>◔</span>
-                    <h2>Analytics Overview</h2>
-                </div>
-            </div>
-
-            <div class="analytics-grid">
-                <div class="analytics-card">
-                    <div class="donut-wrap">
-                        <div class="donut">
-                            <div class="donut-center">
-                                <strong>{{ alert_count }}</strong>
-                                <span>visible alerts</span>
-                            </div>
-                        </div>
+                <div class="menu-stack">
+                    {% if is_admin %}
+                    <div class="menu-note">
+                        Signed in as <strong>{{ admin_username }}</strong>
                     </div>
 
-                    <div class="legend">
-                        <div class="legend-item">
-                            <div class="legend-left">
-                                <span class="dot dot-critical"></span>
-                                <span>Critical</span>
-                            </div>
-                            <span>{{ severity_counts.get("Critical", 0) }}</span>
-                        </div>
+                    <form method="post" action="/logout">
+                        <button class="btn danger block" type="submit">Logout</button>
+                    </form>
+                    {% else %}
+                    <a class="btn primary block" href="/login">Admin Login</a>
+                    {% endif %}
 
-                        <div class="legend-item">
-                            <div class="legend-left">
-                                <span class="dot dot-high"></span>
-                                <span>High</span>
-                            </div>
-                            <span>{{ severity_counts.get("High", 0) }}</span>
-                        </div>
+                    <button class="btn muted-btn block" id="themeToggle" type="button">
+                        Toggle Light / Dark
+                    </button>
 
-                        <div class="legend-item">
-                            <div class="legend-left">
-                                <span class="dot dot-medium"></span>
-                                <span>Medium</span>
-                            </div>
-                            <span>{{ severity_counts.get("Medium", 0) }}</span>
-                        </div>
-                    </div>
-                </div>
+                    <a class="btn secondary block" href="/export-alerts">
+                        Export Alerts CSV
+                    </a>
 
-                <div class="analytics-card">
-                    <div class="trend-list">
-                        {% for event, count in event_counts.items() %}
-                        <div class="trend-row">
-                            <div class="trend-label">
-                                <span>{{ event }}</span>
-                                <span>{{ count }}</span>
-                            </div>
-                            <div class="track">
-                                <div class="fill" style="width: {{ count * 10 }}%;"></div>
-                            </div>
-                        </div>
+                    <div class="menu-note">
+                        {% if demo_mode %}
+                        Demo mode is active. Hosted ingestion restrictions may apply.
                         {% else %}
-                        <div class="empty-state">
-                            <div>
-                                <div class="empty-icon">📊</div>
-                                <strong>No event data yet</strong>
-                                <span>Ingest logs to populate trend activity.</span>
-                            </div>
-                        </div>
-                        {% endfor %}
+                        Full local features are available when supported by your environment.
+                        {% endif %}
                     </div>
                 </div>
+            </aside>
+        </div>
+    </header>
+
+    <main class="layout">
+        <aside class="sidebar">
+            <h2>Quick Actions</h2>
+            <p class="sidebar-copy">
+                Keep the sidebar focused on operational controls while the top bar handles navigation and settings.
+            </p>
+
+            {% if demo_mode %}
+            <div class="demo-banner">
+                Hosted demo mode is active. macOS ingestion may be disabled on Render.
             </div>
-        </section>
+            {% endif %}
 
-        <section class="panel">
-            <div class="panel-heading">
-                <div class="panel-title">
-                    <span>⌕</span>
-                    <h2>Search and Saved Filters</h2>
-                </div>
-            </div>
+            <section class="sidebar-section">
+                <h3>Ingestion</h3>
+                <div class="action-grid">
+                    <form method="post" action="/ingest">
+                        <button class="btn primary block" type="submit">
+                            Ingest Sample Logs
+                        </button>
+                    </form>
 
-            <form class="filter-row" method="get" action="/">
-                <input type="text" name="q" placeholder="Search logs, users, IPs, messages..." value="{{ q }}">
-
-                <select name="severity">
-                    <option value="">All Severities</option>
-                    <option value="Critical" {% if severity == "Critical" %}selected{% endif %}>Critical</option>
-                    <option value="High" {% if severity == "High" %}selected{% endif %}>High</option>
-                    <option value="Medium" {% if severity == "Medium" %}selected{% endif %}>Medium</option>
-                </select>
-
-                <select name="status">
-                    <option value="">All Alert Statuses</option>
-                    <option value="Open" {% if status == "Open" %}selected{% endif %}>Open</option>
-                    <option value="Investigating" {% if status == "Investigating" %}selected{% endif %}>Investigating</option>
-                    <option value="Closed" {% if status == "Closed" %}selected{% endif %}>Closed</option>
-                </select>
-
-                <select name="case_status">
-                    <option value="">All Case Statuses</option>
-                    <option value="Open" {% if case_status == "Open" %}selected{% endif %}>Open</option>
-                    <option value="Investigating" {% if case_status == "Investigating" %}selected{% endif %}>Investigating</option>
-                    <option value="Closed" {% if case_status == "Closed" %}selected{% endif %}>Closed</option>
-                </select>
-
-                <button class="primary" type="submit">Apply</button>
-                <a class="btn muted-btn" href="/">Reset</a>
-            </form>
-
-            <div class="quick-filters">
-                <a class="btn muted-btn" href="/?severity=Critical&status=Open#alerts">Open Critical Alerts</a>
-                <a class="btn muted-btn" href="/?status=Open#alerts">All Open Alerts</a>
-                <a class="btn muted-btn" href="/?case_status=Investigating#cases">Investigating Cases</a>
-                <a class="btn muted-btn" href="/?q=nmap#logs">Suspicious Command Logs</a>
-            </div>
-        </section>
-
-        <section class="panel" id="alerts">
-            <div class="panel-heading">
-                <div class="panel-title">
-                    <span>!</span>
-                    <h2>Alerts</h2>
-                </div>
-            </div>
-
-            <div class="section-stack">
-            {% for alert in alerts %}
-                <div class="alert-card {{ alert.severity }}">
-                    <div class="card-header">
-                        <div>
-                            <div class="card-title">#{{ alert.id }} — {{ alert.rule }}</div>
-
-                            <div class="meta">
-                                <span>Source IP: {{ alert.src_ip }}</span>
-                                <span>MITRE: {{ alert.mitre }}</span>
-                                <span>Occurrences: {{ alert.occurrence_count }}</span>
-                            </div>
-                        </div>
-
-                        <div class="badge-row">
-                            {% if alert.severity == "Critical" %}
-                                <span class="badge badge-critical">Critical</span>
-                            {% elif alert.severity == "High" %}
-                                <span class="badge badge-high">High</span>
+                    <form method="post" action="/ingest-macos">
+                        <button
+                            class="btn secondary block"
+                            type="submit"
+                            {% if not macos_ingest_enabled %}disabled{% endif %}
+                        >
+                            {% if macos_ingest_enabled %}
+                            Ingest macOS Logs
                             {% else %}
-                                <span class="badge badge-medium">Medium</span>
+                            macOS Ingest Disabled
                             {% endif %}
-
-                            <span class="badge badge-status">{{ alert.status }}</span>
-                        </div>
-                    </div>
-
-                    <div class="description">
-                        {{ alert.description }}
-                        <br><br>
-                        <small>
-                            First seen: {{ alert.first_seen }}
-                            &nbsp; | &nbsp;
-                            Last seen: {{ alert.last_seen }}
-                        </small>
-                    </div>
-
-                    <form method="post" action="/alert/{{ alert.id }}/update">
-                        <div class="form-grid">
-                            <select name="status">
-                                <option value="Open" {% if alert.status == "Open" %}selected{% endif %}>Open</option>
-                                <option value="Investigating" {% if alert.status == "Investigating" %}selected{% endif %}>Investigating</option>
-                                <option value="Closed" {% if alert.status == "Closed" %}selected{% endif %}>Closed</option>
-                            </select>
-
-                            <textarea name="notes" placeholder="Write analyst notes here...">{{ alert.notes }}</textarea>
-                        </div>
-
-                        <div class="inline-actions">
-                            <button class="primary" type="submit">Update Alert</button>
-                        </div>
+                        </button>
                     </form>
 
-                    <form method="post"
-                          action="/alert/{{ alert.id }}/delete"
-                          onsubmit="return confirm('Delete this alert and any linked cases?');">
-                        <div class="inline-actions">
-                            <button class="danger" type="submit">Delete Alert</button>
-                        </div>
-                    </form>
-
-                    <form class="case-form" method="post" action="/alert/{{ alert.id }}/case">
-                        <input type="text" name="title" placeholder="Case title" value="Case for alert #{{ alert.id }}">
-                        <textarea name="notes" placeholder="Case notes...">Created from alert: {{ alert.rule }}</textarea>
-
-                        <div class="inline-actions">
-                            <button class="secondary" type="submit">Create Case</button>
-                        </div>
+                    <form method="post" action="/upload-logs" enctype="multipart/form-data" class="stack-form">
+                        <label for="file">Upload JSON Logs</label>
+                        <input class="file-input" id="file" name="file" type="file" accept=".json,application/json" required>
+                        <button class="btn muted-btn block" type="submit">
+                            Queue Uploaded Logs
+                        </button>
                     </form>
                 </div>
-            {% else %}
-                <div class="empty-state">
+            </section>
+
+            <section class="sidebar-section">
+                <h3>Utilities</h3>
+                <div class="action-grid">
+                    <a class="btn muted-btn block" href="/export-alerts">
+                        Export Alerts CSV
+                    </a>
+
+                    <form method="post" action="/clear">
+                        <button class="btn danger block" type="submit">
+                            Clear Data
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="sidebar-section">
+                <h3>Workflow</h3>
+                <div class="quick-guide">
+                    <div class="quick-guide-item">
+                        <strong>1. Ingest</strong>
+                        <span>Load sample, macOS, or uploaded JSON logs.</span>
+                    </div>
+                    <div class="quick-guide-item">
+                        <strong>2. Investigate</strong>
+                        <span>Review detections, update alert statuses, and add analyst notes.</span>
+                    </div>
+                    <div class="quick-guide-item">
+                        <strong>3. Escalate</strong>
+                        <span>Create cases, track progress, and review the audit trail.</span>
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <section class="content">
+            <section class="panel hero" id="dashboard">
+                <div class="hero-copy">
+                    <span class="eyebrow">CalebSec SIEM Console</span>
+                    <h1>Security operations, cleaner and easier to navigate.</h1>
+                    <p>
+                        The dashboard now uses a top navigation bar for the major modules,
+                        a settings menu at the far right, and a focused action sidebar for analyst workflows.
+                    </p>
+
+                    {% if notice %}
+                    <div class="notice">
+                        {{ notice }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="hero-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Filtered Alerts</span>
+                        <strong class="metric-value">{{ alert_count }}</strong>
+                        <span class="metric-note">Alerts currently matching your filters.</span>
+                    </div>
+
+                    <div class="metric">
+                        <span class="metric-label">Filtered Logs</span>
+                        <strong class="metric-value">{{ log_count }}</strong>
+                        <span class="metric-note">Log rows currently in view.</span>
+                    </div>
+
+                    <div class="metric">
+                        <span class="metric-label">Cases</span>
+                        <strong class="metric-value">{{ case_count }}</strong>
+                        <span class="metric-note">Visible case records in the queue.</span>
+                    </div>
+
+                    <div class="metric">
+                        <span class="metric-label">Open Alerts</span>
+                        <strong class="metric-value">{{ open_alert_count }}</strong>
+                        <span class="metric-note">Alerts still awaiting action.</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="section-head">
                     <div>
-                        <div class="empty-icon">🛡</div>
-                        <strong>No alerts to display</strong>
-                        <span>Ingest logs or review current filters.</span>
+                        <h2>Security Snapshot</h2>
+                        <p>High-level counts and severity breakdowns across the alert pipeline.</p>
+                    </div>
+
+                    <div class="mini-stat-row">
+                        <span class="mini-stat">Critical: {{ critical_alert_count }}</span>
+                        <span class="mini-stat">High: {{ high_alert_count }}</span>
+                        <span class="mini-stat">Investigating Cases: {{ investigating_case_count }}</span>
                     </div>
                 </div>
-            {% endfor %}
-            </div>
 
-            {% if total_alert_pages > 1 %}
-            <div class="pagination">
-                {% if alert_page > 1 %}
-                <a class="btn muted-btn"
-                   href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&case_status={{ case_status }}&alert_page={{ alert_page - 1 }}&log_page={{ log_page }}">
-                    Previous Alerts
-                </a>
-                {% endif %}
+                <div class="grid-4">
+                    <article class="summary-card">
+                        <span>Critical Alerts</span>
+                        <strong>{{ critical_alert_count }}</strong>
+                        <p>Items that deserve immediate triage.</p>
+                    </article>
 
-                <span class="page-pill">
-                    Alerts Page {{ alert_page }} of {{ total_alert_pages }}
-                </span>
+                    <article class="summary-card">
+                        <span>High Alerts</span>
+                        <strong>{{ high_alert_count }}</strong>
+                        <p>Strong signals that may require escalation.</p>
+                    </article>
 
-                {% if alert_page < total_alert_pages %}
-                <a class="btn muted-btn"
-                   href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&case_status={{ case_status }}&alert_page={{ alert_page + 1 }}&log_page={{ log_page }}">
-                    Next Alerts
-                </a>
-                {% endif %}
-            </div>
-            {% endif %}
-        </section>
+                    <article class="summary-card">
+                        <span>Open Alerts</span>
+                        <strong>{{ open_alert_count }}</strong>
+                        <p>Alerts still waiting for a workflow decision.</p>
+                    </article>
 
-        <section class="panel" id="cases">
-            <div class="panel-heading">
-                <div class="panel-title">
-                    <span>▣</span>
-                    <h2>Cases</h2>
+                    <article class="summary-card">
+                        <span>Investigating Cases</span>
+                        <strong>{{ investigating_case_count }}</strong>
+                        <p>Cases currently being worked by the analyst.</p>
+                    </article>
                 </div>
-            </div>
 
-            <div class="section-stack">
-            {% for case in cases %}
-                <div class="case-card">
-                    <div class="card-header">
+                <div class="grid-2" style="margin-top: 16px;">
+                    <article class="chart-card">
+                        <h3>Alert Severity Mix</h3>
+                        <div class="bar-stack">
+                            <div class="bar-row">
+                                <div class="bar-meta">
+                                    <span>Critical</span>
+                                    <span>{{ critical_percent }}%</span>
+                                </div>
+                                <div class="bar-track"><div class="bar-fill critical-fill"></div></div>
+                            </div>
+
+                            <div class="bar-row">
+                                <div class="bar-meta">
+                                    <span>High</span>
+                                    <span>{{ high_percent }}%</span>
+                                </div>
+                                <div class="bar-track"><div class="bar-fill high-fill"></div></div>
+                            </div>
+
+                            <div class="bar-row">
+                                <div class="bar-meta">
+                                    <span>Medium</span>
+                                    <span>{{ medium_percent }}%</span>
+                                </div>
+                                <div class="bar-track"><div class="bar-fill medium-fill"></div></div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="chart-card">
+                        <h3>Event Types</h3>
+                        <div class="record-card-list">
+                            {% for event_type, count in event_counts.items() %}
+                            <div class="mini-stat">
+                                <span>{{ event_type }}</span>
+                                <strong>{{ count }}</strong>
+                            </div>
+                            {% else %}
+                            <div class="empty">No event types available yet.</div>
+                            {% endfor %}
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="panel" id="alerts">
+                <div class="section-head">
+                    <div>
+                        <h2>Alerts</h2>
+                        <p>Filter, review, update, delete, or turn detections into cases.</p>
+                    </div>
+
+                    <div class="mini-stat-row">
+                        <span class="mini-stat">Visible Alerts: {{ alert_count }}</span>
+                        <span class="mini-stat">Page {{ alert_page }} of {{ total_alert_pages }}</span>
+                    </div>
+                </div>
+
+                <form method="get" action="/" class="form-row">
+                    <div class="field search-wide">
+                        <label for="q">Search Logs</label>
+                        <input id="q" name="q" type="text" value="{{ q }}" placeholder="Search username, IP, message, event type...">
+                    </div>
+
+                    <div class="field">
+                        <label for="severity">Alert Severity</label>
+                        <select id="severity" name="severity">
+                            <option value="" {% if not severity %}selected{% endif %}>All</option>
+                            <option value="Critical" {% if severity == "Critical" %}selected{% endif %}>Critical</option>
+                            <option value="High" {% if severity == "High" %}selected{% endif %}>High</option>
+                            <option value="Medium" {% if severity == "Medium" %}selected{% endif %}>Medium</option>
+                            <option value="Low" {% if severity == "Low" %}selected{% endif %}>Low</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="status">Alert Status</label>
+                        <select id="status" name="status">
+                            <option value="" {% if not status %}selected{% endif %}>All</option>
+                            <option value="Open" {% if status == "Open" %}selected{% endif %}>Open</option>
+                            <option value="Investigating" {% if status == "Investigating" %}selected{% endif %}>Investigating</option>
+                            <option value="Resolved" {% if status == "Resolved" %}selected{% endif %}>Resolved</option>
+                            <option value="False Positive" {% if status == "False Positive" %}selected{% endif %}>False Positive</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="case_status">Case Status</label>
+                        <select id="case_status" name="case_status">
+                            <option value="" {% if not case_status %}selected{% endif %}>All</option>
+                            <option value="Open" {% if case_status == "Open" %}selected{% endif %}>Open</option>
+                            <option value="Investigating" {% if case_status == "Investigating" %}selected{% endif %}>Investigating</option>
+                            <option value="Closed" {% if case_status == "Closed" %}selected{% endif %}>Closed</option>
+                        </select>
+                    </div>
+
+                    <button class="btn secondary" type="submit">Apply Filters</button>
+                </form>
+
+                {% if alerts %}
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Detection</th>
+                                <th>Severity</th>
+                                <th>Source</th>
+                                <th>Timing</th>
+                                <th>Status & Notes</th>
+                                <th>Case / Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alert in alerts %}
+                            <tr>
+                                <td>
+                                    <strong>{{ alert.rule }}</strong><br>
+                                    <span>{{ alert.description }}</span><br><br>
+                                    <span class="badge status">{{ alert.mitre }}</span>
+                                </td>
+                                <td>
+                                    {% set severity_value = alert.severity|lower %}
+                                    <span class="badge {{ severity_value }}">
+                                        {{ alert.severity }}
+                                    </span>
+                                    <div style="margin-top: 10px; color: var(--muted); font-weight: 850;">
+                                        Occurrences: {{ alert.occurrence_count or 1 }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong>{{ alert.src_ip }}</strong>
+                                </td>
+                                <td>
+                                    <div><strong>First:</strong> {{ alert.first_seen or "—" }}</div>
+                                    <div><strong>Last:</strong> {{ alert.last_seen or "—" }}</div>
+                                </td>
+                                <td>
+                                    <form method="post" action="/alert/{{ alert.id }}/update" class="inline-form">
+                                        <select name="status">
+                                            <option value="Open" {% if alert.status == "Open" %}selected{% endif %}>Open</option>
+                                            <option value="Investigating" {% if alert.status == "Investigating" %}selected{% endif %}>Investigating</option>
+                                            <option value="Resolved" {% if alert.status == "Resolved" %}selected{% endif %}>Resolved</option>
+                                            <option value="False Positive" {% if alert.status == "False Positive" %}selected{% endif %}>False Positive</option>
+                                        </select>
+                                        <textarea name="notes" placeholder="Analyst notes...">{{ alert.notes or "" }}</textarea>
+                                        <button class="btn secondary" type="submit">Update Alert</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <div class="alert-actions">
+                                        <form method="post" action="/alert/{{ alert.id }}/case" class="stack-form">
+                                            <input name="title" type="text" placeholder="Case title" required>
+                                            <textarea name="notes" placeholder="Initial case notes..."></textarea>
+                                            <button class="btn primary" type="submit">Create Case</button>
+                                        </form>
+
+                                        <form method="post" action="/alert/{{ alert.id }}/delete">
+                                            <button class="btn danger block" type="submit">Delete Alert</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <span>Alerts page {{ alert_page }} of {{ total_alert_pages }}</span>
+                    <div class="page-buttons">
+                        {% if alert_page > 1 %}
+                        <a class="btn muted-btn" href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&case_status={{ case_status }}&alert_page={{ alert_page - 1 }}&log_page={{ log_page }}#alerts">
+                            Previous Alerts
+                        </a>
+                        {% endif %}
+
+                        {% if alert_page < total_alert_pages %}
+                        <a class="btn muted-btn" href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&case_status={{ case_status }}&alert_page={{ alert_page + 1 }}&log_page={{ log_page }}#alerts">
+                            Next Alerts
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty">No alerts match the current filters.</div>
+                {% endif %}
+            </section>
+
+            <section class="panel" id="logs">
+                <div class="section-head">
+                    <div>
+                        <h2>Logs</h2>
+                        <p>Review ingested activity and inspect the raw events driving detections.</p>
+                    </div>
+
+                    <div class="mini-stat-row">
+                        <span class="mini-stat">Visible Logs: {{ log_count }}</span>
+                        <span class="mini-stat">Page {{ log_page }} of {{ total_log_pages }}</span>
+                    </div>
+                </div>
+
+                {% if logs %}
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Event Type</th>
+                                <th>Username</th>
+                                <th>Source IP</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td>{{ log.timestamp }}</td>
+                                <td><span class="badge status">{{ log.event_type }}</span></td>
+                                <td>{{ log.username }}</td>
+                                <td>{{ log.src_ip }}</td>
+                                <td>{{ log.message or "—" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <span>Logs page {{ log_page }} of {{ total_log_pages }}</span>
+                    <div class="page-buttons">
+                        {% if log_page > 1 %}
+                        <a class="btn muted-btn" href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&case_status={{ case_status }}&alert_page={{ alert_page }}&log_page={{ log_page - 1 }}#logs">
+                            Previous Logs
+                        </a>
+                        {% endif %}
+
+                        {% if log_page < total_log_pages %}
+                        <a class="btn muted-btn" href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&case_status={{ case_status }}&alert_page={{ alert_page }}&log_page={{ log_page + 1 }}#logs">
+                            Next Logs
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty">No logs match the current search.</div>
+                {% endif %}
+            </section>
+
+            <section class="panel" id="cases">
+                <div class="section-head">
+                    <div>
+                        <h2>Cases</h2>
+                        <p>Track escalated investigations and keep the case queue organized.</p>
+                    </div>
+
+                    <div class="mini-stat-row">
+                        <span class="mini-stat">Visible Cases: {{ case_count }}</span>
+                    </div>
+                </div>
+
+                {% if cases %}
+                <div class="record-card-list">
+                    {% for case in cases %}
+                    <article class="record-card">
+                        <h3>Case #{{ case.id }} — {{ case.title }}</h3>
+
+                        <div class="record-meta">
+                            <span class="badge status">Status: {{ case.status }}</span>
+                            <span class="badge status">Alert: #{{ case.alert_id }}</span>
+                            {% if case.created_at %}
+                            <span class="badge status">Created: {{ case.created_at }}</span>
+                            {% endif %}
+                        </div>
+
+                        <p>{{ case.notes or "No case notes added yet." }}</p>
+
+                        <div class="case-actions">
+                            <form method="post" action="/case/{{ case.id }}/update" class="stack-form">
+                                <select name="status">
+                                    <option value="Open" {% if case.status == "Open" %}selected{% endif %}>Open</option>
+                                    <option value="Investigating" {% if case.status == "Investigating" %}selected{% endif %}>Investigating</option>
+                                    <option value="Closed" {% if case.status == "Closed" %}selected{% endif %}>Closed</option>
+                                </select>
+                                <textarea name="notes" placeholder="Update case notes...">{{ case.notes or "" }}</textarea>
+                                <button class="btn secondary" type="submit">Update Case</button>
+                            </form>
+
+                            <form method="post" action="/case/{{ case.id }}/delete">
+                                <button class="btn danger block" type="submit">Delete Case</button>
+                            </form>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty">No cases match the current filter.</div>
+                {% endif %}
+            </section>
+
+            <section class="panel" id="audit">
+                <div class="section-head">
+                    <div>
+                        <h2>Audit Trail</h2>
+                        <p>Recent CalebSec activity across authentication and protected analyst actions.</p>
+                    </div>
+                </div>
+
+                {% if audit_events %}
+                <div class="audit-list">
+                    {% for event in audit_events %}
+                    <article class="audit-item">
                         <div>
-                            <div class="card-title">Case #{{ case.id }} — {{ case.title }}</div>
-                            <div class="meta">Linked Alert ID: {{ case.alert_id }}</div>
+                            <strong>{{ event.actor }}</strong>
+                            <span>Actor</span>
                         </div>
-                        <span class="badge badge-status">{{ case.status }}</span>
-                    </div>
-
-                    <form method="post" action="/case/{{ case.id }}/update">
-                        <div class="form-grid">
-                            <select name="status">
-                                <option value="Open" {% if case.status == "Open" %}selected{% endif %}>Open</option>
-                                <option value="Investigating" {% if case.status == "Investigating" %}selected{% endif %}>Investigating</option>
-                                <option value="Closed" {% if case.status == "Closed" %}selected{% endif %}>Closed</option>
-                            </select>
-
-                            <textarea name="notes" placeholder="Case notes...">{{ case.notes }}</textarea>
+                        <div>
+                            <strong>{{ event.action }}</strong>
+                            <span>{{ event.timestamp or event.created_at or "" }}</span>
                         </div>
-
-                        <div class="inline-actions">
-                            <button class="primary" type="submit">Update Case</button>
-                        </div>
-                    </form>
-
-                    <form method="post"
-                          action="/case/{{ case.id }}/delete"
-                          onsubmit="return confirm('Delete this case?');">
-                        <div class="inline-actions">
-                            <button class="danger" type="submit">Delete Case</button>
-                        </div>
-                    </form>
+                        <p>{{ event.detail or event.details or "No detail available." }}</p>
+                    </article>
+                    {% endfor %}
                 </div>
-            {% else %}
-                <div class="empty-state">
-                    <div>
-                        <div class="empty-icon">📁</div>
-                        <strong>No cases created yet</strong>
-                        <span>Create a case from an alert to begin tracking an investigation.</span>
-                    </div>
-                </div>
-            {% endfor %}
-            </div>
-        </section>
-
-        <section class="panel" id="logs">
-            <div class="panel-heading">
-                <div class="panel-title">
-                    <span>≡</span>
-                    <h2>Logs</h2>
-                </div>
-            </div>
-
-            {% if logs %}
-            <div class="table-shell">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>Event Type</th>
-                            <th>User</th>
-                            <th>Source IP</th>
-                            <th>Message</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for log in logs %}
-                        <tr>
-                            <td>{{ log.timestamp }}</td>
-                            <td><span class="event-pill">{{ log.event_type }}</span></td>
-                            <td>{{ log.username }}</td>
-                            <td>{{ log.src_ip }}</td>
-                            <td class="message-cell">{{ log.message }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <div>
-                    <div class="empty-icon">🧾</div>
-                    <strong>No logs to display</strong>
-                    <span>Ingest logs or broaden the current search filters.</span>
-                </div>
-            </div>
-            {% endif %}
-
-            {% if total_log_pages > 1 %}
-            <div class="pagination">
-                {% if log_page > 1 %}
-                <a class="btn muted-btn"
-                   href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&case_status={{ case_status }}&alert_page={{ alert_page }}&log_page={{ log_page - 1 }}">
-                    Previous Logs
-                </a>
+                {% else %}
+                <div class="empty">No audit activity has been recorded yet.</div>
                 {% endif %}
-
-                <span class="page-pill">
-                    Logs Page {{ log_page }} of {{ total_log_pages }}
-                </span>
-
-                {% if log_page < total_log_pages %}
-                <a class="btn muted-btn"
-                   href="/?q={{ q }}&severity={{ severity }}&status={{ status }}&case_status={{ case_status }}&alert_page={{ alert_page }}&log_page={{ log_page + 1 }}">
-                    Next Logs
-                </a>
-                {% endif %}
-            </div>
-            {% endif %}
-        </section>
-
-        <section class="panel" id="audit">
-            <div class="panel-heading">
-                <div class="panel-title">
-                    <span>↺</span>
-                    <h2>Audit Trail</h2>
-                </div>
-            </div>
-
-            {% if audit_events %}
-            <div class="table-shell">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>Actor</th>
-                            <th>Action</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for event in audit_events %}
-                        <tr>
-                            <td>{{ event.timestamp }}</td>
-                            <td>{{ event.actor }}</td>
-                            <td><span class="action-pill">{{ event.action }}</span></td>
-                            <td class="message-cell">{{ event.details }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <div>
-                    <div class="empty-icon">🧭</div>
-                    <strong>No audit events yet</strong>
-                    <span>Protected actions will appear here after they occur.</span>
-                </div>
-            </div>
-            {% endif %}
+            </section>
         </section>
     </main>
-</div>
 
-<script>
-    const themeToggle = document.getElementById("themeToggle");
-    const savedTheme = localStorage.getItem("calebsec-theme");
+    <script>
+        const menuToggle = document.getElementById("menuToggle");
+        const settingsMenu = document.getElementById("settingsMenu");
+        const themeToggle = document.getElementById("themeToggle");
 
-    if (savedTheme === "light") {
-        document.body.classList.add("light");
-    }
+        menuToggle?.addEventListener("click", () => {
+            const isOpen = settingsMenu.classList.toggle("open");
+            menuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        });
 
-    themeToggle?.addEventListener("click", () => {
-        document.body.classList.toggle("light");
-        localStorage.setItem(
-            "calebsec-theme",
-            document.body.classList.contains("light") ? "light" : "dark"
-        );
-    });
+        document.addEventListener("click", (event) => {
+            const clickedInsideMenu = settingsMenu?.contains(event.target);
+            const clickedToggle = menuToggle?.contains(event.target);
 
-    const toast = document.getElementById("toast");
-    if (toast) {
-        setTimeout(() => {
-            toast.style.opacity = "0";
-            toast.style.transform = "translateY(-10px)";
-            toast.style.transition = "all 0.35s ease";
-        }, 3200);
-    }
-</script>
+            if (!clickedInsideMenu && !clickedToggle) {
+                settingsMenu?.classList.remove("open");
+                menuToggle?.setAttribute("aria-expanded", "false");
+            }
+        });
+
+        const savedTheme = localStorage.getItem("calebsec-theme");
+        if (savedTheme === "light") {
+            document.body.classList.add("light-mode");
+        }
+
+        themeToggle?.addEventListener("click", () => {
+            document.body.classList.toggle("light-mode");
+            const nextTheme = document.body.classList.contains("light-mode") ? "light" : "dark";
+            localStorage.setItem("calebsec-theme", nextTheme);
+        });
+    </script>
 </body>
 </html>
