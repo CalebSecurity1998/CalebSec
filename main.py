@@ -21,7 +21,6 @@ import secrets
 import hmac
 import math
 import time
-import traceback
 from collections import Counter, defaultdict, deque
 
 from detection import run_all_detections
@@ -103,8 +102,6 @@ def validate_csrf_token(request: Request, submitted_token: str | None) -> None:
 
     if not hmac.compare_digest(session_token, submitted_token):
         raise HTTPException(status_code=403, detail="Invalid CSRF token")
-
-
 def get_client_ip(request: Request):
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
@@ -237,7 +234,6 @@ async def custom_http_exception_handler(
         request=request,
         name="error.html",
         context={
-            "request": request,
             "status_code": status_code,
             "title": title,
             "message": message
@@ -251,13 +247,10 @@ async def custom_server_error_handler(
     request: Request,
     exc: Exception
 ):
-    traceback.print_exc()
-
     return templates.TemplateResponse(
         request=request,
         name="error.html",
         context={
-            "request": request,
             "status_code": 500,
             "title": "Something Went Wrong",
             "message": "CalebSec ran into an unexpected issue. Please try again shortly."
@@ -280,9 +273,7 @@ async def login_page(request: Request, error: str = ""):
         request=request,
         name="login.html",
         context={
-            "request": request,
-            "error": error,
-            "csrf_token": get_csrf_token(request)
+            "error": error
         }
     )
 
@@ -291,11 +282,8 @@ async def login_page(request: Request, error: str = ""):
 async def login_submit(
     request: Request,
     username: str = Form(...),
-    password: str = Form(...),
-    csrf_token: str = Form(...)
+    password: str = Form(...)
 ):
-    validate_csrf_token(request, csrf_token)
-
     username_ok = secrets.compare_digest(
         username.encode("utf-8"),
         ADMIN_USERNAME.encode("utf-8")
@@ -317,16 +305,13 @@ async def login_submit(
             request=request,
             name="login.html",
             context={
-                "request": request,
-                "error": "Invalid admin username or password.",
-                "csrf_token": get_csrf_token(request)
+                "error": "Invalid admin username or password."
             },
             status_code=401
         )
 
     request.session["is_admin"] = True
     request.session["admin_username"] = username
-    request.session["csrf_token"] = secrets.token_urlsafe(32)
 
     log_audit_event(
         username,
@@ -338,12 +323,7 @@ async def login_submit(
 
 
 @app.post("/logout")
-async def logout(
-    request: Request,
-    csrf_token: str = Form(...)
-):
-    validate_csrf_token(request, csrf_token)
-
+async def logout(request: Request):
     admin_username = request.session.get("admin_username", "admin")
 
     request.session.clear()
@@ -462,7 +442,6 @@ async def dashboard(
         request=request,
         name="dashboard.html",
         context={
-            "request": request,
             "alerts": paginated_alerts,
             "logs": paginated_logs,
             "cases": cases,
@@ -491,21 +470,16 @@ async def dashboard(
             "high_percent": high_percent,
             "medium_percent": medium_percent,
             "is_admin": request.session.get("is_admin", False),
-            "admin_username": request.session.get("admin_username", ""),
-            "csrf_token": get_csrf_token(request)
+            "admin_username": request.session.get("admin_username", "")
         }
     )
 
 
 @app.post("/ingest")
 async def ingest_sample_logs(
-    request: Request,
     background_tasks: BackgroundTasks,
-    csrf_token: str = Form(...),
     admin: str = Depends(protected_admin_action)
 ):
-    validate_csrf_token(request, csrf_token)
-
     with open("sample_logs/auth_logs.json", "r") as f:
         logs = json.load(f)
 
@@ -527,13 +501,9 @@ async def ingest_sample_logs(
 
 @app.post("/ingest-macos")
 async def ingest_macos_logs(
-    request: Request,
     background_tasks: BackgroundTasks,
-    csrf_token: str = Form(...),
     admin: str = Depends(protected_admin_action)
 ):
-    validate_csrf_token(request, csrf_token)
-
     if not ENABLE_MACOS_INGEST:
         return redirect_with_notice("macOS ingestion is disabled in hosted demo mode")
 
@@ -550,14 +520,10 @@ async def ingest_macos_logs(
 
 @app.post("/upload-logs")
 async def upload_logs(
-    request: Request,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    csrf_token: str = Form(...),
     admin: str = Depends(protected_admin_action)
 ):
-    validate_csrf_token(request, csrf_token)
-
     raw = await file.read()
 
     if len(raw) > MAX_UPLOAD_BYTES:
@@ -612,14 +578,10 @@ async def upload_logs(
 @app.post("/alert/{alert_id}/update")
 async def alert_update(
     alert_id: int,
-    request: Request,
     status: str = Form(...),
     notes: str = Form(""),
-    csrf_token: str = Form(...),
     admin: str = Depends(protected_admin_action)
 ):
-    validate_csrf_token(request, csrf_token)
-
     update_alert(alert_id, status, notes)
 
     log_audit_event(
@@ -634,12 +596,8 @@ async def alert_update(
 @app.post("/alert/{alert_id}/delete")
 async def alert_delete(
     alert_id: int,
-    request: Request,
-    csrf_token: str = Form(...),
     admin: str = Depends(protected_admin_action)
 ):
-    validate_csrf_token(request, csrf_token)
-
     delete_alert(alert_id)
 
     log_audit_event(
@@ -654,14 +612,10 @@ async def alert_delete(
 @app.post("/alert/{alert_id}/case")
 async def create_case_route(
     alert_id: int,
-    request: Request,
     title: str = Form(...),
     notes: str = Form(""),
-    csrf_token: str = Form(...),
     admin: str = Depends(protected_admin_action)
 ):
-    validate_csrf_token(request, csrf_token)
-
     create_case(alert_id, title, notes)
 
     log_audit_event(
@@ -676,14 +630,10 @@ async def create_case_route(
 @app.post("/case/{case_id}/update")
 async def case_update(
     case_id: int,
-    request: Request,
     status: str = Form(...),
     notes: str = Form(""),
-    csrf_token: str = Form(...),
     admin: str = Depends(protected_admin_action)
 ):
-    validate_csrf_token(request, csrf_token)
-
     update_case(case_id, status, notes)
 
     log_audit_event(
@@ -698,12 +648,8 @@ async def case_update(
 @app.post("/case/{case_id}/delete")
 async def case_delete(
     case_id: int,
-    request: Request,
-    csrf_token: str = Form(...),
     admin: str = Depends(protected_admin_action)
 ):
-    validate_csrf_token(request, csrf_token)
-
     delete_case(case_id)
 
     log_audit_event(
@@ -716,13 +662,7 @@ async def case_delete(
 
 
 @app.post("/clear")
-async def clear_data(
-    request: Request,
-    csrf_token: str = Form(...),
-    admin: str = Depends(protected_admin_action)
-):
-    validate_csrf_token(request, csrf_token)
-
+async def clear_data(admin: str = Depends(protected_admin_action)):
     clear_db()
     seed_demo_data_if_needed()
 
