@@ -72,7 +72,36 @@ rate_limit_buckets = defaultdict(deque)
 
 init_db()
 
+# ---------------------------------------------------------
+# CSRF PROTECTION HELPERS
+# ---------------------------------------------------------
 
+def get_csrf_token(request: Request) -> str:
+    """
+    Get the current CSRF token from the session.
+    If one does not exist yet, create it.
+    """
+    csrf_token = request.session.get("csrf_token")
+
+    if not csrf_token:
+        csrf_token = secrets.token_urlsafe(32)
+        request.session["csrf_token"] = csrf_token
+
+    return csrf_token
+
+
+def validate_csrf_token(request: Request, submitted_token: str | None) -> None:
+    """
+    Validate a CSRF token submitted from a form.
+    Raises a 403 error if invalid or missing.
+    """
+    session_token = request.session.get("csrf_token")
+
+    if not session_token or not submitted_token:
+        raise HTTPException(status_code=403, detail="Missing CSRF token")
+
+    if not hmac.compare_digest(session_token, submitted_token):
+        raise HTTPException(status_code=403, detail="Invalid CSRF token")
 def get_client_ip(request: Request):
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
