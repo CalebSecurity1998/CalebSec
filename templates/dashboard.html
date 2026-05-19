@@ -21,15 +21,9 @@
             --green-strong: #10b981;
             --blue: #60a5fa;
             --blue-strong: #2563eb;
-            --yellow: #fbbf24;
-            --orange: #fb923c;
-            --red: #f87171;
             --red-strong: #ef4444;
-            --purple: #c084fc;
             --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
             --radius-lg: 28px;
-            --radius-md: 20px;
-            --radius-sm: 14px;
         }
 
         body.light-mode {
@@ -481,7 +475,6 @@
         }
 
         .grid-4,
-        .grid-3,
         .grid-2 {
             display: grid;
             gap: 16px;
@@ -489,10 +482,6 @@
 
         .grid-4 {
             grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-
-        .grid-3 {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
         .grid-2 {
@@ -678,11 +667,6 @@
             border-color: var(--border);
         }
 
-        .btn.warning {
-            color: #111827;
-            background: linear-gradient(135deg, #fcd34d, #f59e0b);
-        }
-
         .btn.danger {
             color: white;
             background: linear-gradient(135deg, #fb7185, var(--red-strong));
@@ -690,6 +674,12 @@
 
         .btn.block {
             width: 100%;
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+            transform: none;
         }
 
         .table-wrap {
@@ -783,12 +773,6 @@
             display: grid;
             gap: 10px;
             min-width: 260px;
-        }
-
-        .two-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
         }
 
         .record-card-list {
@@ -937,10 +921,6 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .grid-3 {
-                grid-template-columns: 1fr;
-            }
-
             .form-row {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
@@ -994,8 +974,7 @@
             .hero-metrics,
             .grid-4,
             .grid-2,
-            .form-row,
-            .two-buttons {
+            .form-row {
                 grid-template-columns: 1fr;
             }
 
@@ -1108,7 +1087,7 @@
 
             {% if demo_mode %}
             <div class="demo-banner">
-                Hosted demo mode is active. macOS ingestion may be disabled on Render.
+                Hosted demo mode is active. macOS ingestion becomes available after admin login.
             </div>
             {% endif %}
 
@@ -1121,22 +1100,20 @@
                         </button>
                     </form>
 
-                  <form method="post" action="/ingest-macos">
-    <button
-        class="btn secondary block"
-        type="submit"
-        {% if not is_admin or not macos_ingest_enabled %}disabled{% endif %}
-    >
-        {% if not is_admin %}
-        Admin Login Required
-        {% elif macos_ingest_enabled %}
-        Ingest macOS Logs
-        {% else %}
-        macOS Ingest Disabled
-        {% endif %}
-    </button>
-</form>
-                    
+                    <form method="post" action="/ingest-macos">
+                        <button
+                            class="btn secondary block"
+                            type="submit"
+                            {% if not is_admin %}disabled{% endif %}
+                        >
+                            {% if is_admin %}
+                            Ingest macOS Logs
+                            {% else %}
+                            Admin Login Required
+                            {% endif %}
+                        </button>
+                    </form>
+
                     <form method="post" action="/upload-logs" enctype="multipart/form-data" class="stack-form">
                         <label for="file">Upload JSON Logs</label>
                         <input class="file-input" id="file" name="file" type="file" accept=".json,application/json" required>
