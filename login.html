@@ -163,6 +163,10 @@
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
         }
 
+        input[type="hidden"] {
+            display: none;
+        }
+
         button,
         .return-link {
             width: 100%;
@@ -266,11 +270,25 @@
             {% endif %}
 
             <form method="post" action="/login">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
                 <label for="username">Username</label>
-                <input id="username" name="username" type="text" required autocomplete="username">
+                <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    required
+                    autocomplete="username"
+                >
 
                 <label for="password">Password</label>
-                <input id="password" name="password" type="password" required autocomplete="current-password">
+                <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    autocomplete="current-password"
+                >
 
                 <button type="submit">Sign In to CalebSec</button>
             </form>
