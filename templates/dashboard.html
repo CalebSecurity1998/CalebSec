@@ -1121,20 +1121,22 @@
                         </button>
                     </form>
 
-                    <form method="post" action="/ingest-macos">
-                        <button
-                            class="btn secondary block"
-                            type="submit"
-                            {% if not macos_ingest_enabled %}disabled{% endif %}
-                        >
-                            {% if macos_ingest_enabled %}
-                            Ingest macOS Logs
-                            {% else %}
-                            macOS Ingest Disabled
-                            {% endif %}
-                        </button>
-                    </form>
-
+                  <form method="post" action="/ingest-macos">
+    <button
+        class="btn secondary block"
+        type="submit"
+        {% if not is_admin or not macos_ingest_enabled %}disabled{% endif %}
+    >
+        {% if not is_admin %}
+        Admin Login Required
+        {% elif macos_ingest_enabled %}
+        Ingest macOS Logs
+        {% else %}
+        macOS Ingest Disabled
+        {% endif %}
+    </button>
+</form>
+                    
                     <form method="post" action="/upload-logs" enctype="multipart/form-data" class="stack-form">
                         <label for="file">Upload JSON Logs</label>
                         <input class="file-input" id="file" name="file" type="file" accept=".json,application/json" required>
