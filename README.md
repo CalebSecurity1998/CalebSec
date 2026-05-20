@@ -186,7 +186,43 @@ http://127.0.0.1:8000
 
 # Screenshots
 
-Add screenshots to the `/screenshots` folder.
+# Screenshots
+
+## Dashboard
+
+![Dashboard](screenshots/dashboard.png)
+
+---
+
+## SOC Alert Triage
+
+![SOC Triage](screenshots/soc-triage.png)
+
+---
+
+## Threat Intelligence Lookup
+
+![Threat Intel](screenshots/threat-intel.png)
+
+---
+
+## Alerts & Case Management
+
+![Alerts](screenshots/alerts.png)
+
+![Cases](screenshots/cases.png)
+
+---
+
+## MITRE ATT&CK Mapping & Analyst Workflow
+
+![MITRE](screenshots/mitre-training.png)
+
+---
+
+## Audit Trail & Investigation Tracking
+
+![Audit Trail](screenshots/audit-trail.png)
 
 Recommended screenshots:
 
