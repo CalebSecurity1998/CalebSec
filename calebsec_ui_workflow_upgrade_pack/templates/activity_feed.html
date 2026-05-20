@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CalebSec Analyst Activity Feed</title>
+    <link rel="stylesheet" href="/static/severity.css">
+    <style>
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #08111f; color: #e5e7eb; }
+        .wrap { width: min(1100px, calc(100vw - 40px)); margin: 30px auto; }
+        .top { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
+        h1 { margin: 0; font-size: 42px; letter-spacing: -0.04em; }
+        p { color: #94a3b8; line-height: 1.55; }
+        .btn { min-height: 44px; padding: 0 16px; border: 0; border-radius: 14px; font-weight: 800; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; background: #2563eb; color: white; }
+        .feed { background: rgba(15,23,42,.95); border: 1px solid rgba(148,163,184,.16); border-radius: 24px; padding: 20px; }
+        .event { display: grid; grid-template-columns: 180px 170px 1fr; gap: 14px; padding: 16px; border-bottom: 1px solid rgba(148,163,184,.14); }
+        .event:last-child { border-bottom: 0; }
+        .time, .actor { color: #94a3b8; font-weight: 700; }
+        .action { font-weight: 900; }
+        .details { color: #cbd5e1; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <main class="wrap">
+        <div class="top">
+            <div>
+                <h1>Analyst Activity Feed</h1>
+                <p>Track recent CalebSec workflow activity across alerts, cases, IOC lookups, and investigation actions.</p>
+            </div>
+            <a class="btn" href="/">Back to SIEM</a>
+        </div>
+
+        <section class="feed">
+            {% for item in activity %}
+            <div class="event">
+                <div class="time">{{ item.created_at }}</div>
+                <div class="actor">{{ item.actor }}</div>
+                <div>
+                    <div class="action">{{ item.action }}</div>
+                    <div class="details">{{ item.details }}</div>
+                </div>
+            </div>
+            {% else %}
+            <div class="event">
+                <div></div>
+                <div>system</div>
+                <div>
+                    <div class="action">No activity yet</div>
+                    <div class="details">Seed enhanced demo data to populate analyst workflow events.</div>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+    </main>
+</body>
+</html>

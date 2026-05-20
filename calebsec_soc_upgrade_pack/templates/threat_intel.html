@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CalebSec Threat Intelligence</title>
+    <style>
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #08111f; color: #e5e7eb; }
+        .wrap { width: min(1200px, calc(100vw - 40px)); margin: 30px auto; }
+        .top { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
+        h1 { margin: 0; font-size: 42px; letter-spacing: -0.04em; }
+        p { color: #94a3b8; }
+        .panel { background: rgba(15,23,42,.95); border: 1px solid rgba(148,163,184,.16); border-radius: 24px; padding: 22px; margin-bottom: 18px; }
+        .btn { min-height: 44px; padding: 0 16px; border: 0; border-radius: 14px; font-weight: 800; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; background: #10b981; color: #04130e; }
+        .btn.secondary { background: #2563eb; color: white; }
+        input, select { min-height: 44px; background: #111827; color: #e5e7eb; border: 1px solid rgba(148,163,184,.25); border-radius: 12px; padding: 0 12px; }
+        .lookup { display: grid; grid-template-columns: 1fr 180px auto; gap: 12px; align-items: end; }
+        .result { display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: center; }
+        .score { width: 150px; height: 150px; border-radius: 50%; display: grid; place-items: center; background: #111827; border: 1px solid rgba(148,163,184,.25); font-size: 36px; font-weight: 950; }
+        table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 16px; }
+        th, td { padding: 14px; border-bottom: 1px solid rgba(148,163,184,.16); text-align: left; }
+        th { color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+    </style>
+</head>
+<body>
+    <main class="wrap">
+        <div class="top">
+            <div>
+                <h1>Threat Intelligence</h1>
+                <p>Search IPs, domains, URLs, hashes, or commands and generate local IOC risk scoring with MITRE mapping.</p>
+            </div>
+            <a class="btn secondary" href="/">Back to SIEM</a>
+        </div>
+
+        <section class="panel">
+            <form method="post" action="/threat-intel" class="lookup">
+                <label>IOC Value<br>
+                    <input name="ioc_value" value="{{ ioc_value or '' }}" placeholder="Example: 185.220.101.42 or login-security-update.example.com" required>
+                </label>
+
+                <label>IOC Type<br>
+                    <select name="ioc_type">
+                        {% for item in ["auto", "ip", "domain", "url", "hash", "command"] %}
+                        <option value="{{ item }}" {% if ioc_type == item %}selected{% endif %}>{{ item }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <button class="btn" type="submit">Lookup IOC</button>
+            </form>
+        </section>
+
+        {% if result %}
+        <section class="panel result">
+            <div class="score">{{ result.risk_score }}</div>
+            <div>
+                <h2>{{ result.verdict }}</h2>
+                <p><strong>MITRE Mapping:</strong> {{ result.mitre_mapping }}</p>
+                <p>{{ result.summary }}</p>
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="panel">
+            <h2>Recent IOC Lookups</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>IOC</th>
+                        <th>Type</th>
+                        <th>Score</th>
+                        <th>Verdict</th>
+                        <th>MITRE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in history %}
+                    <tr>
+                        <td>{{ row.searched_at }}</td>
+                        <td>{{ row.ioc_value }}</td>
+                        <td>{{ row.ioc_type }}</td>
+                        <td>{{ row.risk_score }}</td>
+                        <td>{{ row.verdict }}</td>
+                        <td>{{ row.mitre_mapping }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6">No IOC lookups yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+</html>
