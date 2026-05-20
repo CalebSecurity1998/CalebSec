@@ -1,3 +1,18 @@
+from soc_extensions import (
+    init_soc_tables,
+    generate_sample_soc_alerts,
+    get_triage_alerts,
+    update_triage_alert,
+    lookup_ioc,
+    get_ioc_history
+)
+
+from workflow_extensions import (
+    init_workflow_tables,
+    get_detection_rules,
+    get_recent_activity,
+    seed_enhanced_demo_data
+)
 from fastapi import (
     FastAPI,
     Request,
@@ -73,7 +88,8 @@ RATE_LIMIT_MAX_ACTIONS = 20
 rate_limit_buckets = defaultdict(deque)
 
 init_db()
-
+init_soc_tables()
+init_workflow_tables()
 # ---------------------------------------------------------
 # CSRF PROTECTION HELPERS
 # ---------------------------------------------------------
@@ -806,3 +822,81 @@ async def export_alerts(admin: str = Depends(protected_admin_action)):
             "Content-Disposition": "attachment; filename=calebsec_alerts.csv"
         }
     )
+@app.get("/soc-triage", response_class=HTMLResponse)
+async def soc_triage_page(request: Request, status: str = "", severity: str = ""):
+    alerts = get_triage_alerts(status=status or None, severity=severity or None)
+    return templates.TemplateResponse("soc_triage.html", {
+        "request": request,
+        "alerts": alerts,
+        "selected_status": status,
+        "selected_severity": severity
+    })
+
+
+@app.post("/soc-triage/generate")
+async def soc_triage_generate():
+    generate_sample_soc_alerts()
+    return RedirectResponse(url="/soc-triage", status_code=303)
+
+
+@app.post("/soc-triage/update/{alert_id}")
+async def soc_triage_update(
+    alert_id: int,
+    status: str = Form(...),
+    analyst_notes: str = Form(""),
+    assigned_to: str = Form("")
+):
+    update_triage_alert(alert_id, status, analyst_notes, assigned_to)
+    return RedirectResponse(url="/soc-triage", status_code=303)
+
+
+@app.get("/threat-intel", response_class=HTMLResponse)
+async def threat_intel_page(request: Request):
+    history = get_ioc_history()
+    return templates.TemplateResponse("threat_intel.html", {
+        "request": request,
+        "result": None,
+        "history": history
+    })
+
+
+@app.post("/threat-intel", response_class=HTMLResponse)
+async def threat_intel_lookup(
+    request: Request,
+    ioc_value: str = Form(...),
+    ioc_type: str = Form("auto")
+):
+    result = lookup_ioc(ioc_value, ioc_type)
+    history = get_ioc_history()
+
+    return templates.TemplateResponse("threat_intel.html", {
+        "request": request,
+        "result": result,
+        "ioc_value": ioc_value,
+        "ioc_type": ioc_type,
+        "history": history
+    })
+
+
+@app.get("/detection-rules", response_class=HTMLResponse)
+async def detection_rules_page(request: Request):
+    rules = get_detection_rules()
+    return templates.TemplateResponse("detection_rules.html", {
+        "request": request,
+        "rules": rules
+    })
+
+
+@app.get("/activity-feed", response_class=HTMLResponse)
+async def activity_feed_page(request: Request):
+    activity = get_recent_activity()
+    return templates.TemplateResponse("activity_feed.html", {
+        "request": request,
+        "activity": activity
+    })
+
+
+@app.post("/seed-enhanced-demo")
+async def seed_enhanced_demo():
+    seed_enhanced_demo_data()
+    return RedirectResponse(url="/", status_code=303)
