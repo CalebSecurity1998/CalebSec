@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CalebSec Detection Rules</title>
+    <link rel="stylesheet" href="/static/severity.css">
+    <style>
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #08111f; color: #e5e7eb; }
+        .wrap { width: min(1200px, calc(100vw - 40px)); margin: 30px auto; }
+        .top { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
+        h1 { margin: 0; font-size: 42px; letter-spacing: -0.04em; }
+        h2 { margin-bottom: 8px; }
+        p { color: #94a3b8; line-height: 1.55; }
+        a { color: inherit; }
+        .btn { min-height: 44px; padding: 0 16px; border: 0; border-radius: 14px; font-weight: 800; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; background: #2563eb; color: white; }
+        .rule { background: rgba(15,23,42,.95); border: 1px solid rgba(148,163,184,.16); border-radius: 22px; padding: 20px; margin-bottom: 16px; }
+        .meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+        .logic { background: #111827; border: 1px solid rgba(148,163,184,.18); border-radius: 14px; padding: 14px; color: #d1d5db; }
+    </style>
+</head>
+<body>
+    <main class="wrap">
+        <div class="top">
+            <div>
+                <h1>Detection Rules</h1>
+                <p>Review CalebSec detection logic, severity, and MITRE ATT&CK mappings.</p>
+            </div>
+            <a class="btn" href="/">Back to SIEM</a>
+        </div>
+
+        {% for rule in rules %}
+        <article class="rule">
+            <h2>{{ rule.rule_name }}</h2>
+            <div class="meta">
+                <span class="soc-badge {{ rule.severity }}">{{ rule.severity }}</span>
+                <span class="soc-badge">MITRE: {{ rule.mitre_technique }}</span>
+                <span class="soc-badge">Enabled: {% if rule.enabled %}Yes{% else %}No{% endif %}</span>
+            </div>
+            <p>{{ rule.description }}</p>
+            <div class="logic"><strong>Detection Logic:</strong> {{ rule.detection_logic }}</div>
+        </article>
+        {% else %}
+        <article class="rule">
+            <h2>No detection rules found</h2>
+            <p>Run the workflow initialization and seed enhanced demo data.</p>
+        </article>
+        {% endfor %}
+    </main>
+</body>
+</html>
