@@ -39,6 +39,7 @@ import time
 import random
 from datetime import datetime, timedelta
 from collections import Counter, defaultdict, deque
+from pathlib import Path
 
 from detection import run_all_detections, mitre_heatmap
 from database import (
@@ -59,8 +60,16 @@ from database import (
 )
 from macos_ingest import collect_macos_logs
 
+# Get the base directory (where main.py is located)
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = BASE_DIR.parent
+
+# Set up paths for templates and sample logs
+TEMPLATES_DIR = PROJECT_DIR / "templates"
+SAMPLE_LOGS_DIR = PROJECT_DIR / "sample_logs"
+
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 DEMO_MODE = os.getenv("DEMO_MODE", "false").lower() == "true"
 ENABLE_MACOS_INGEST = os.getenv("ENABLE_MACOS_INGEST", "true").lower() == "true"
@@ -167,22 +176,24 @@ def protected_admin_action(
 
 def seed_demo_data_if_needed():
     if DEMO_MODE and len(get_logs()) == 0:
-        with open("sample_logs/auth_logs.json", "r") as f:
-            logs = json.load(f)
+        auth_logs_path = SAMPLE_LOGS_DIR / "auth_logs.json"
+        if auth_logs_path.exists():
+            with open(auth_logs_path, "r") as f:
+                logs = json.load(f)
 
-        alerts = run_all_detections(logs)
+            alerts = run_all_detections(logs)
 
-        for log in logs:
-            insert_log(log)
+            for log in logs:
+                insert_log(log)
 
-        for alert in alerts:
-            insert_alert(alert)
+            for alert in alerts:
+                insert_alert(alert)
 
-        log_audit_event(
-            "system",
-            "demo_seed",
-            f"Seeded {len(logs)} demo logs and {len(alerts)} alerts."
-        )
+            log_audit_event(
+                "system",
+                "demo_seed",
+                f"Seeded {len(logs)} demo logs and {len(alerts)} alerts."
+            )
 
 
 def paginate(items, page, page_size):
@@ -539,7 +550,14 @@ async def ingest_sample_logs(
     background_tasks: BackgroundTasks,
     admin: str = Depends(protected_admin_action)
 ):
-    with open("sample_logs/auth_logs.json", "r") as f:
+    auth_logs_path = SAMPLE_LOGS_DIR / "auth_logs.json"
+    if not auth_logs_path.exists():
+        raise HTTPException(
+            status_code=400,
+            detail="Sample logs file not found"
+        )
+    
+    with open(auth_logs_path, "r") as f:
         logs = json.load(f)
 
     background_tasks.add_task(
@@ -583,7 +601,14 @@ async def ingest_advanced_attack_logs(
     background_tasks: BackgroundTasks,
     admin: str = Depends(protected_admin_action)
 ):
-    with open("sample_logs/advanced_attack_logs.json", "r") as f:
+    advanced_logs_path = SAMPLE_LOGS_DIR / "advanced_attack_logs.json"
+    if not advanced_logs_path.exists():
+        raise HTTPException(
+            status_code=400,
+            detail="Advanced attack logs file not found"
+        )
+    
+    with open(advanced_logs_path, "r") as f:
         logs = json.load(f)
     background_tasks.add_task(process_log_batch, logs, admin, "Advanced attack scenario")
     log_audit_event(admin, "advanced_scenario_queued", f"Queued {len(logs)} advanced attack logs.")
