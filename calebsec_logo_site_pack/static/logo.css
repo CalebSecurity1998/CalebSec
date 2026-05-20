@@ -1,0 +1,32 @@
+/* CalebSec logo styling */
+
+.site-logo {
+  height: 56px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.brand-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-logo {
+  max-width: 420px;
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .site-logo {
+    height: 44px;
+  }
+
+  .hero-logo {
+    max-width: 320px;
+  }
+}
