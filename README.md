@@ -235,6 +235,19 @@ This project demonstrates:
 
 ---
 
+# Interview Talking Points
+
+- Built a FastAPI-based SOC platform to simulate alert triage and investigation workflows.
+- Added IOC enrichment and threat scoring to support analyst decision-making.
+- Implemented MITRE ATT&CK mapping for suspicious behaviors and detections.
+- Developed case management and analyst note workflows similar to real SOC tooling.
+- Added phishing analysis and suspicious activity simulations to demonstrate incident response concepts.
+- Designed detection logic for brute force attacks, PowerShell abuse, malware beaconing, and credential theft scenarios.
+- Implemented audit logging, role-protected actions, session security, and rate limiting.
+- Deployed the platform publicly using Render and maintained the project through GitHub workflows.
+
+---
+
 # Future Improvements
 
 Planned future enhancements include:
