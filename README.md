@@ -1,157 +1,167 @@
-# CalebSec SIEM Console
+# CalebSec Security Operations Platform
 
-A deployable blue-team security monitoring project built with **FastAPI**, **SQLite**, and a custom detection pipeline. CalebSec simulates a lightweight Security Information and Event Management workflow by ingesting logs, generating alerts, supporting investigations, and presenting activity through a polished analyst dashboard.
-
-> **Live Demo:** [https://calebsec.onrender.com](https://calebsec.onrender.com)
-> **Repository:** [https://github.com/jwkh26vy8c-source/CalebSec/tree/main](https://github.com/jwkh26vy8c-source/CalebSec/tree/main)
+CalebSec is a modular SOC-style cybersecurity platform built with **FastAPI**, **SQLite**, and a modern web dashboard. It is designed to simulate real security operations workflows including SIEM monitoring, alert triage, IOC enrichment, MITRE ATT&CK mapping, phishing analysis, case tracking, audit logging, and analyst investigation notes.
 
 ---
 
-## Project Overview
+## Project Purpose
 
-CalebSec was created as a practical cybersecurity portfolio project to strengthen hands-on experience with:
-
-* Security event ingestion
-* Detection engineering fundamentals
-* Alert triage and severity handling
-* MITRE ATT&CK mapping
-* Analyst case management
-* Audit logging and administrative controls
-* Secure web application design concepts
-
-The project is designed to resemble the workflow of a junior SOC analyst reviewing security telemetry, investigating alerts, and tracking incidents from detection to closure.
+This project was built as a hands-on cybersecurity portfolio project to demonstrate practical blue-team and SOC analyst skills. CalebSec simulates how security teams collect logs, review alerts, investigate suspicious activity, enrich indicators of compromise, and document findings.
 
 ---
 
 ## Key Features
 
-### Security Monitoring & Detection
-
-* JSON log ingestion and sample log seeding
-* macOS log collection support for local analyst testing
-* Detection rules for:
-
-  * Multiple failed login attempts
-  * Successful login after repeated failures
-  * Logins outside normal business hours
-  * Suspicious command keywords such as `nmap`, `mimikatz`, `sudo`, `chmod 777`, and `whoami`
-* Severity labels including Medium, High, and Critical
-* MITRE ATT&CK technique references for generated alerts
-
-### Analyst Workflow
-
-* Alert dashboard with searchable logs and filtered alerts
-* Alert status updates and analyst notes
-* Case creation and case tracking
-* Audit event history for administrative and workflow actions
-* CSV alert export for reporting or offline review
-* Alert occurrence tracking with first-seen and last-seen timestamps
-
-### Application Security & Admin Controls
-
-* Admin login flow
-* Session-based authentication
-* CSRF token helpers for protected form actions
-* Rate limiting for sensitive actions
-* Custom error handling pages
-* Hosted demo mode support through environment variables
-
-### UI & Usability
-
-* Modern analyst-console dashboard design
-* Dark/light mode toggle interface
-* Responsive layout for desktop and smaller screens
-* Separate sections for dashboard metrics, logs, alerts, cases, and audit history
+- SIEM-style dashboard
+- Security log ingestion
+- Alert monitoring
+- SOC alert triage workflow
+- Threat intelligence / IOC lookup
+- Local IOC risk scoring
+- MITRE ATT&CK mapping
+- Case management
+- Analyst notes
+- Audit trail
+- Phishing detection capability
+- Suspicious activity simulation
+- Hosted demo mode
+- FastAPI backend
+- SQLite database
+- Render deployment support
 
 ---
 
-## Tech Stack
+# SOC Modules
 
-* **Backend:** Python, FastAPI
-* **Frontend:** Jinja2 templates, HTML, CSS
-* **Database:** SQLite
-* **Deployment:** Render
-* **Server:** Uvicorn
+## Dashboard
+
+The main dashboard provides a high-level overview of current alerts, logs, open cases, and security activity.
 
 ---
 
-## Screenshots
+## SOC Alert Triage
 
-### Dashboard Overview
+The SOC triage module allows analysts to review simulated security alerts, assign statuses, add notes, and track investigation decisions.
 
-![CalebSec Dashboard Overview](screenshots/calebsec-dashboard-overview.png)
+### Supported statuses
 
-### Admin Login
-
-![CalebSec Admin Login](screenshots/calebsec-admin-login.png)
-
-### Alert Investigation View
-
-![CalebSec Alert Investigation View](screenshots/calebsec-alert-investigation.png)
-
-### MITRE ATT&CK & Training Mode
-
-![CalebSec MITRE ATT\&CK and Training Mode](screenshots/calebsec-mitre-training.png)
+- New
+- Investigating
+- Escalated
+- Resolved
+- False Positive
 
 ---
 
-## Example Detection Scenario
+## Threat Intelligence
 
-A sample brute-force chain can be represented as:
+The threat intelligence module supports IOC lookups for:
 
-1. Multiple failed login attempts occur from the same source IP.
-2. CalebSec raises a **High** severity brute-force alert.
-3. A successful login from that same source after failures triggers a **Critical** alert.
-4. The analyst can review the alert, add notes, and create a case for further investigation.
+- IP addresses
+- Domains
+- URLs
+- Hashes
+- Suspicious command strings
 
-This workflow models how repeated authentication failures and a subsequent success can indicate credential compromise attempts.
+Each lookup produces:
+
+- Risk score
+- Verdict
+- MITRE mapping
+- Summary of suspicious indicators
 
 ---
 
-## Local Setup
+## MITRE ATT&CK Mapping
 
-### 1. Clone the Repository
+Alerts and suspicious behaviors are mapped to MITRE ATT&CK techniques such as:
 
-```bash
-git clone https://github.com/jwkh26vy8c-source/CalebSec.git
-cd CalebSec
+- T1110 – Brute Force
+- T1059.001 – PowerShell
+- T1071 – Application Layer Protocol
+- T1566 – Phishing
+- T1204 – User Execution
+
+---
+
+# Example Use Cases
+
+- Investigating brute-force login activity
+- Reviewing suspicious PowerShell behavior
+- Identifying potential malware beaconing
+- Analyzing phishing indicators
+- Enriching suspicious IPs and domains
+- Tracking analyst investigation notes
+- Simulating SOC alert response workflows
+
+---
+
+# Technology Stack
+
+- Python
+- FastAPI
+- SQLite
+- Jinja2 Templates
+- HTML/CSS
+- Render
+- GitHub
+
+---
+
+# Project Structure
+
+```text
+CalebSec/
+├── main.py
+├── database.py
+├── detection.py
+├── soc_extensions.py
+├── threat_intel.py
+├── templates/
+│   ├── dashboard.html
+│   ├── soc_triage.html
+│   └── threat_intel.html
+├── static/
+├── docs/
+│   ├── portfolio_summary.md
+│   ├── soc_workflow.md
+│   ├── threat_intel_workflow.md
+│   └── resume_bullets.md
+├── screenshots/
+└── README.md
 ```
 
-### 2. Create and Activate a Virtual Environment
+---
+
+# How to Run Locally
+
+Clone the repository:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+git clone https://github.com/YOUR-USERNAME/YOUR-REPO.git
+cd YOUR-REPO
 ```
 
-### 3. Install Dependencies
+Create and activate a virtual environment:
+
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configure Environment Variables
-
-Create a `.env` file or define environment variables in your terminal/deployment platform.
-
-Example values:
-
-```env
-ADMIN_USERNAME=caleb
-ADMIN_PASSWORD=change-this-password
-SESSION_SECRET=change-this-session-secret
-SESSION_COOKIE_SECURE=false
-DEMO_MODE=false
-ENABLE_MACOS_INGEST=true
-```
-
-### 5. Start the Application
+Run the application:
 
 ```bash
 uvicorn main:app --reload
 ```
 
-Open the local app in your browser at:
+Open the app:
 
 ```text
 http://127.0.0.1:8000
@@ -159,79 +169,78 @@ http://127.0.0.1:8000
 
 ---
 
-## Render Deployment Notes
-
-This project can be deployed on Render using a start command similar to:
-
-```bash
-uvicorn main:app --host 0.0.0.0 --port $PORT
-```
-
-When the project lives inside a subfolder in GitHub, configure Render’s **Root Directory** to the folder that contains `main.py`, `requirements.txt`, and your templates.
-
----
-
-## Recommended GitHub Repository Structure
+# Important Routes
 
 ```text
-calebsec-siem/
-├── main.py
-├── database.py
-├── detection.py
-├── macos_ingest.py
-├── requirements.txt
-├── render.yaml
-├── templates/
-│   ├── dashboard.html
-│   ├── login.html
-│   └── error.html
-├── sample_logs/
-│   └── auth_logs.json
-├── screenshots/
-│   ├── dashboard.png
-│   ├── alerts.png
-│   └── login.png
-└── README.md
+/                 Main dashboard
+/alerts           Alerts
+/logs             Logs
+/cases            Cases
+/audit            Audit trail
+/mitre            MITRE & training
+/soc-triage       SOC alert triage
+/threat-intel     Threat intelligence lookup
 ```
 
 ---
 
-## Cybersecurity Skills Demonstrated
+# Screenshots
 
-This project demonstrates practical familiarity with:
+Add screenshots to the `/screenshots` folder.
 
-* SIEM-style security monitoring concepts
-* Log ingestion and normalization workflows
-* Authentication-focused detection logic
-* MITRE ATT&CK awareness
-* Alert severity and triage concepts
-* Incident case management fundamentals
-* Auditability and admin action tracking
-* Secure web application controls such as CSRF protection and rate limiting
+Recommended screenshots:
 
----
+```text
+screenshots/dashboard.png
+screenshots/soc-triage.png
+screenshots/threat-intel.png
+screenshots/alerts.png
+screenshots/cases.png
+```
 
-## Future Improvements
+Then reference them like this:
 
-Planned enhancements could include:
-
-* Additional detection rules for PowerShell abuse, privilege escalation, and impossible travel
-* IOC enrichment for malicious IPs, domains, or hashes
-* Live event streaming or real-time alert updates
-* Expanded MITRE ATT&CK visualizations
-* Role-based access control beyond admin-only sessions
-* Docker support and CI/CD checks
-* Analyst training mode with guided SOC scenarios
+```markdown
+![Dashboard](screenshots/dashboard.png)
+![SOC Triage](screenshots/soc-triage.png)
+![Threat Intel](screenshots/threat-intel.png)
+```
 
 ---
 
-## Resume-Friendly Project Summary
+# Portfolio Value
 
-> Built and deployed a FastAPI-based SIEM-style security console featuring log ingestion, custom authentication detections, MITRE ATT&CK-mapped alerts, analyst case management, audit trail logging, CSV reporting, and secure admin controls using session authentication, CSRF protection, and rate limiting.
+This project demonstrates:
+
+- Security operations knowledge
+- Alert triage workflow understanding
+- Threat intelligence concepts
+- Detection engineering fundamentals
+- MITRE ATT&CK familiarity
+- Incident response documentation
+- Python web application development
+- Database-backed security tooling
+- Practical blue-team project experience
 
 ---
 
-## Author
+# Future Improvements
 
-**Caleb DeBari**
-Cybersecurity-focused builder developing practical blue-team and SOC analyst portfolio projects.
+Planned future enhancements include:
+
+- RBAC / authentication
+- Live log ingestion
+- Sigma rule support
+- Suricata integration
+- Zeek integration
+- SOAR automation
+- Email header analysis
+- Cloud security monitoring
+- Threat feed integrations
+- Analyst metrics dashboard
+
+---
+
+# Disclaimer
+
+This project is for educational and portfolio purposes only. It is not intended to replace production-grade SIEM, SOAR, EDR, or threat intelligence platforms.
