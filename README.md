@@ -197,8 +197,7 @@ http://127.0.0.1:8000
 ## MITRE ATT&CK Training
 ![MITRE Training](screenshots/calebsec-mitre-training.png)
 
-## Audit Trail / Analyst Workflow
-![Audit Trail](screenshots/1235431a-8ed9-42ad-b6bb-991966fcfa3d.png)
+
 
 
 
