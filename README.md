@@ -183,48 +183,24 @@ http://127.0.0.1:8000
 ```
 
 ---
-
 # Screenshots
 
-# Screenshots
+## Dashboard Overview
+![Dashboard Overview](screenshots/calebsec-dashboard-overview.png)
 
-## Dashboard
+## Admin Login
+![Admin Login](screenshots/calebsec-admin-login.png)
 
-![Dashboard](screenshots/dashboard.png)
+## Alert Investigation
+![Alert Investigation](screenshots/calebsec-alert-investigation.png)
 
----
+## MITRE ATT&CK Training
+![MITRE Training](screenshots/calebsec-mitre-training.png)
 
-## SOC Alert Triage
+## Audit Trail / Analyst Workflow
+![Audit Trail](screenshots/1235431a-8ed9-42ad-b6bb-991966fcfa3d.png)
 
-![SOC Triage](screenshots/soc-triage.png)
 
----
-
-## Threat Intelligence Lookup
-
-![Threat Intel](screenshots/threat-intel.png)
-
----
-
-## Alerts & Case Management
-
-![Alerts](screenshots/alerts.png)
-
-![Cases](screenshots/cases.png)
-
----
-
-## MITRE ATT&CK Mapping & Analyst Workflow
-
-![MITRE](screenshots/mitre-training.png)
-
----
-
-## Audit Trail & Investigation Tracking
-
-![Audit Trail](screenshots/audit-trail.png)
-
-Recommended screenshots:
 
 ```text
 screenshots/dashboard.png
