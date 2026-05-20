@@ -11,6 +11,7 @@ from fastapi import (
 )
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 import json
@@ -49,12 +50,17 @@ from macos_ingest import collect_macos_logs
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = BASE_DIR.parent
 
-# Set up paths for templates and sample logs
+# Set up paths for templates, sample logs, and static files
 TEMPLATES_DIR = PROJECT_DIR / "templates"
 SAMPLE_LOGS_DIR = PROJECT_DIR / "sample_logs"
+STATIC_DIR = PROJECT_DIR / "static"
 
 app = FastAPI()
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
+# Mount static files directory if it exists
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 DEMO_MODE = os.getenv("DEMO_MODE", "false").lower() == "true"
 ENABLE_MACOS_INGEST = os.getenv("ENABLE_MACOS_INGEST", "true").lower() == "true"
