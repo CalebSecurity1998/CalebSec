@@ -252,9 +252,6 @@ This project demonstrates:
 
 Planned future enhancements include:
 
-- Suricata integration
-- Zeek integration
-- SOAR automation
 - Email header analysis
 - Cloud security monitoring
 - Threat feed integrations
