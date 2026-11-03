@@ -316,6 +316,127 @@ When the database is initialized, a default local admin account is created:
 
 The live log ingestion module allows CalebSec to receive and process security events in real time.
 
+# Suricata, Zeek, and SOAR Network Operations Upgrade
+
+CalebSec offers an **optional network sensor and SOAR integration pack** designed for the existing `calebsec_siem_pro/` FastAPI application. These features become available **only after installing the pack** and configuring external sensors.
+
+The integration extends the existing SQLite-backed SIEM without replacing the dashboard, alerts, cases, or authentication.
+
+## Capabilities
+
+| Module | Included Functionality |
+|---|---|
+| **Suricata** | Ingest EVE JSON/JSONL events; map intrusion signatures and severities into CalebSec alerts |
+| **Zeek** | Ingest JSON connection, DNS, HTTP, SSL/TLS, and notice logs; search network history |
+| **Network Correlation** | Associate events by Community ID or by network connection details and timestamps |
+| **SOAR Automation** | Local IOC enrichment, playbook execution history, audit records, and optional case creation for high/critical Suricata alerts |
+
+---
+
+## Suricata Integration
+
+Suricata provides network intrusion detection capabilities for CalebSec.
+
+### Features
+
+- Suricata EVE JSON log ingestion
+- Network intrusion alert monitoring
+- Detection signature identification
+- Alert severity classification
+- Source and destination IP tracking
+- Integration with existing CalebSec alerts
+- Network event correlation with Zeek telemetry
+
+Suricata-generated alerts can be reviewed alongside other security events in CalebSec.
+
+---
+
+## Zeek Integration
+
+Zeek provides network security monitoring and detailed traffic analysis.
+
+### Supported Logs
+
+- `conn.log` — Network connections
+- `dns.log` — DNS activity
+- `http.log` — HTTP transactions
+- `ssl.log` — TLS/SSL connections
+- `notice.log` — Security notices
+
+### Features
+
+- Network connection monitoring
+- DNS activity analysis
+- HTTP traffic investigation
+- Network activity history
+- Source and destination tracking
+- Cross-source network event correlation
+
+Zeek must be configured to export logs in JSON format.
+
+---
+
+## SOAR Automation
+
+CalebSec includes an optional Security Orchestration, Automation, and Response (SOAR) extension.
+
+### Features
+
+- Automated security alert triage
+- Local IOC enrichment
+- Automated case creation
+- High-severity alert handling
+- Playbook execution history
+- Security audit logging
+- Recommended response actions
+
+### Automated Incident Response
+
+When enabled, SOAR can process high- and critical-severity Suricata alerts and create investigation records.
+
+The automation engine supports safe investigation workflows without automatically making destructive changes to connected systems.
+
+**Security restriction:** Firewall blocking, endpoint isolation, and other potentially disruptive response actions are not automatically executed. Suggested IP blocking is review-only.
+
+---
+
+## Network Operations Dashboard
+
+After installing the integration, CalebSec provides a dedicated network operations interface.
+
+**Dashboard URL:**
+
+`/network-ops`
+
+The interface allows authorized administrators to review network events and security automation activity.
+
+---
+
+## Installation
+
+### 1. Download the Upgrade Package
+
+Download and extract:
+
+`CalebSec_Suricata_Zeek_SOAR_Upgrade_with_README.zip`
+
+Back up your existing CalebSec project and SQLite database before installation.
+
+### 2. Run the Installer
+
+From the extracted package directory:
+
+```bash
+python install.py --repo /path/to/CalebSec
+```
+
+The installer:
+
+- Adds the `calebsec_siem_pro/network_ops/` module.
+- Registers the network operations router in `calebsec_siem_pro/main.py`.
+- Adds the integration documentation to the root README.
+- Preserves the existing
+
 ### Purpose
 
 This module simulates how a SIEM or SOC platform collects telemetry from systems, applications, and security tools. Incoming logs are normalized into CalebSec events and evaluated against loaded detection rules.
